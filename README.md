@@ -141,6 +141,9 @@ Ce verifică testele:
 - **Adrese cu sugestii** (ADR-0012): stradă și număr la preluare și destinație, prin Geoapify (plan
   gratuit) sau Photon propriu; punctul exact se salvează la rezervare.
 
+- **Ore pe drum real și ordinea preluărilor** (ADR-0013): Geoapify Routing API și Route Planner API
+  (aceeași cheie ca la adrese), cu variantă locală gratuită; ordinea pe traseu protejată în baza de date.
+
 ## Ce urmează
 
 1. **Aplicația șoferului (Expo)**, peste funcțiile din `docs/api-baza-de-date.md`. Până e gata,

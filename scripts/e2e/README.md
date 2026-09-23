@@ -13,6 +13,8 @@ Două scripturi, pe o bază cu migrațiile și datele din `supabase/tests/fixtur
   GPS, oraș necunoscut, „Acum”, telefon și desktop), cu browser real (Playwright, Python);
 - `addresses_e2e.py`: adresele cu sugestii (client și dispecer) și memoria scurtă a rezultatelor,
   cu Geoapify fals (`fake-geocoder.mjs`);
+- `route_planner_e2e.py`: ordinea preluărilor (Route Planner) și orele pe drum real (Routing API), cu
+  Geoapify fals; eliberează la început locurile cursei de test;
 - `sites.e2e.mjs`: site-urile firmelor (conținut, text sigur, subdomeniu, domeniu propriu,
   cereri). Cere `site-demo.sql` încărcat după fixtures și build-ul web cu
   `NEXT_PUBLIC_ROOT_DOMAIN=transportos.test`.

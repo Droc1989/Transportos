@@ -4,7 +4,7 @@ import type { StopKind, StopStatus } from '@transportos/shared';
 import { requireStaffCompany } from '@/lib/company';
 import { getT } from '@/lib/i18n';
 import { ShareButton } from '../../../_components/share-button';
-import { autoOrder, computeTimes, createTrackingLink, moveStop } from './actions';
+import { autoOrder, computeTimes, createTrackingLink, moveStop, optimizeStops } from './actions';
 
 type Stop = {
   id: string;
@@ -25,10 +25,10 @@ export default async function TripStopsPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ error?: string; times?: string }>;
+  searchParams: Promise<{ error?: string; times?: string; optimized?: string; moved?: string }>;
 }) {
   const { id } = await params;
-  const { error, times } = await searchParams;
+  const { error, times, optimized, moved } = await searchParams;
   const { supabase, companyId, timeZone } = await requireStaffCompany();
   const { t, locale } = await getT();
 
@@ -70,6 +70,9 @@ export default async function TripStopsPage({
       </p>
 
       {error && <p role="alert" className="alert alert-error">{error}</p>}
+      {optimized === 'road' && <p role="status" className="alert alert-ok">{t('stops.optimizedRoad').replace('{n}', moved ?? '0')}</p>}
+      {optimized === 'local' && <p role="status" className="alert alert-ok">{t('stops.optimizedLocal').replace('{n}', moved ?? '0')}</p>}
+      {optimized === 'none' && <p role="status" className="alert alert-info">{t('stops.optimizeNothing')}</p>}
       {times === 'approximate' && <p role="status" className="alert alert-info">{t('stops.approximate')}</p>}
       {times === 'ok' && <p role="status" className="alert alert-ok">{t('stops.timesSaved')} {t('stops.noTraffic')}</p>}
 
@@ -82,6 +85,10 @@ export default async function TripStopsPage({
               <form action={autoOrder}>
                 <input type="hidden" name="trip_id" value={id} />
                 <button className="btn btn-small">{t('stops.autoOrder')}</button>
+              </form>
+              <form action={optimizeStops}>
+                <input type="hidden" name="trip_id" value={id} />
+                <button className="btn btn-small">{t('stops.optimize')}</button>
               </form>
               <form action={computeTimes}>
                 <input type="hidden" name="trip_id" value={id} />

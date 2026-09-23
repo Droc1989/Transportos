@@ -48,6 +48,12 @@ Membrii nu se mai scriu direct în `company_members`. La firmă, personalul poat
 Pozele microbuzelor sunt în `vehicle_photos` (EXTERIOR, INTERIOR, LUGGAGE, OTHER); condițiile în
 `vehicles.features` (listă fixă, `VEHICLE_FEATURES` în `packages/shared`).
 
+## Ordinea opririlor
+
+| Funcție | Ce face |
+|---|---|
+| `set_trip_stop_order(cursă, opriri[])` | Ordinea stabilită de optimizare (personalul firmei). Toate opririle active o singură dată; opririle făcute nu se mută; ordinea zonelor pe traseu și coborârea după urcare se păstrează (ADR-0013). |
+
 ## Clienți (marketplace)
 
 | Funcție | Ce face |

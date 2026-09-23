@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test lib/*.test.ts lib/geocoding/*.test.ts"
+    "test": "tsx --test lib/*.test.ts lib/geocoding/*.test.ts lib/routing/*.test.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
