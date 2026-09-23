@@ -1,3 +1,4 @@
+import { CompanyPackagePanel } from '../../_packages/panels';
 import { notFound } from 'next/navigation';
 import { requirePlatformAdmin } from '@/lib/admin';
 import { ActionForm } from '../../../dispecerat/_components/action-form';
@@ -52,7 +53,7 @@ export default async function AdminCompanyPage({ params, searchParams }: {
 
   return (
     <>
-      <h1>{c.name}</h1>
+      <h1>{c.name}</h1><CompanyPackagePanel id={id} />
       <p className="lead">
         {c.slug} · {c.country} · stare: <strong>{c.status}</strong> · harta publică: {settings.data?.show_on_public_map ? 'acceptată de firmă' : 'neacceptată'}
       </p>

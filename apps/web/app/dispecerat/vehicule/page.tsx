@@ -1,6 +1,6 @@
 import { requireStaffCompany } from '@/lib/company';
 import Link from 'next/link';
-import { getT, type MessageKey } from '@/lib/i18n';
+import { getT, getRegistrationCopy, type MessageKey } from '@/lib/i18n';
 import { ActionForm } from '../_components/action-form';
 import { addVehicle, setVehicleState } from './actions';
 
@@ -18,6 +18,7 @@ type Vehicle = {
 export default async function VehiclesPage() {
   const { supabase, companyId } = await requireStaffCompany({ allowPending: true });
   const { t } = await getT();
+  const { copy } = await getRegistrationCopy();
 
   const { data, error } = await supabase
     .from('vehicles')
@@ -31,7 +32,7 @@ export default async function VehiclesPage() {
 
   return (
     <>
-      <h1>{t('vehicles.title')}</h1>
+      <h1>{t('vehicles.title')}</h1><p><Link href="/inregistrare-firma">{copy.returnRegistration}</Link></p>
 
       <div className="split">
         <section className="card">
@@ -93,7 +94,7 @@ export default async function VehiclesPage() {
         </section>
 
         <ActionForm action={addVehicle} submitLabel={t('vehicles.add')} pendingLabel={t('common.saving')}>
-          <fieldset>
+          <fieldset id="vehicul-nou">
             <legend>{t('vehicles.add')}</legend>
             <div className="row">
               <label>

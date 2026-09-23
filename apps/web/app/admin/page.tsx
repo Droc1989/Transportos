@@ -1,3 +1,4 @@
+import { PackageCatalogPanel } from './_packages/panels';
 import Link from 'next/link';
 import { requirePlatformAdmin } from '@/lib/admin';
 import { ActionForm } from '../dispecerat/_components/action-form';
@@ -22,25 +23,29 @@ const eur = new Intl.NumberFormat('ro-RO', { style: 'currency', currency: 'EUR',
 const date = new Intl.DateTimeFormat('ro-RO', { timeZone: 'Europe/Bucharest', dateStyle: 'medium' });
 
 /** Venit lunar estimat: vehicule facturabile × preț, cel puțin minimul planului. */
-function monthlyCents(row: CompanyRow, plans: Map<string, Plan>) {
+function monthlyCents(row: CompanyRow, plans: Map<string, Plan>, prices: Map<string, number>) {
   const plan = row.plan_id ? plans.get(row.plan_id) : undefined;
   if (!plan || !['ACTIVE', 'PAST_DUE'].includes(row.subscription ?? '')) return 0;
+  if (prices.has(row.id)) return prices.get(row.id)! * 100;
   return Math.max(row.billable * plan.price_cents_per_vehicle, plan.min_monthly_price_cents);
 }
 
 export default async function AdminHome() {
   const { supabase } = await requirePlatformAdmin();
-  const [companies, plans] = await Promise.all([
+  const [companies, plans, savedPackages] = await Promise.all([
     supabase.rpc('admin_list_companies'),
     supabase.from('plans').select('id, name, price_cents_per_vehicle, min_monthly_price_cents').order('id').returns<Plan[]>(),
+    supabase.from('company_vehicle_packages').select('company_id,monthly_eur'),
   ]);
   if (companies.error) throw companies.error;
   if (plans.error) throw plans.error;
 
+  if (savedPackages.error) throw savedPackages.error;
+  const prices = new Map<string,number>((savedPackages.data ?? []).map(p => [p.company_id,Number(p.monthly_eur)]));
   const rows = (companies.data ?? []) as CompanyRow[];
   const planMap = new Map((plans.data ?? []).map((p) => [p.id, p]));
-  const mrr = rows.reduce((s, r) => s + monthlyCents(r, planMap), 0);
-  const paying = rows.filter((r) => monthlyCents(r, planMap) > 0).length;
+  const mrr = rows.reduce((s, r) => s + monthlyCents(r, planMap, prices), 0);
+  const paying = rows.filter((r) => monthlyCents(r, planMap, prices) > 0).length;
 
   return (
     <>
@@ -98,6 +103,7 @@ export default async function AdminHome() {
           </fieldset>
         </ActionForm>
       </div>
+      <PackageCatalogPanel />
     </>
   );
 }

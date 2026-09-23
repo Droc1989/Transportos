@@ -787,6 +787,9 @@ const errors: Record<Locale, Record<DomainError | 'UNKNOWN', string>> = {
     TRIP_NOT_FOUND: 'Cursa nu mai există.',
     BOOKING_NOT_FOUND: 'Rezervarea nu mai există.',
     FORBIDDEN: 'Nu ai drept pentru această acțiune.',
+    PACKAGE_CATALOG_INVALID: 'Pachetele trebuie să înceapă cu 1, fără goluri sau suprapuneri. Verifică intervalele și prețurile.',
+    PACKAGE_PRICE_CHANGED: 'Prețul s-a schimbat. Reîncarcă pagina și verifică pachetul înainte să continui.',
+    PLAN_LIMIT_REACHED: 'Limita de vehicule aprobate a pachetului este atinsă. Verifică pachetul firmei înainte de aprobare.',
     COMPANY_READ_ONLY: 'Contul firmei e în mod doar citire. Verifică abonamentul.',
     TRIP_CLOSED: 'Cursa e închisă.',
     INVALID_SEGMENT: 'Alege un punct de coborâre după punctul de urcare.',
@@ -829,6 +832,9 @@ const errors: Record<Locale, Record<DomainError | 'UNKNOWN', string>> = {
     TRIP_NOT_FOUND: 'Die Fahrt existiert nicht mehr.',
     BOOKING_NOT_FOUND: 'Die Buchung existiert nicht mehr.',
     FORBIDDEN: 'Du hast keine Berechtigung für diese Aktion.',
+    PACKAGE_CATALOG_INVALID: 'Pakete müssen bei 1 beginnen, ohne Lücken oder Überschneidungen. Prüfe Bereiche und Preise.',
+    PACKAGE_PRICE_CHANGED: 'Der Preis hat sich geändert. Lade die Seite neu und prüfe das Paket.',
+    PLAN_LIMIT_REACHED: 'Die Fahrzeuggrenze des Pakets ist erreicht. Prüfe das Firmenpaket vor der Genehmigung.',
     COMPANY_READ_ONLY: 'Das Firmenkonto ist schreibgeschützt. Prüfe das Abonnement.',
     TRIP_CLOSED: 'Die Fahrt ist abgeschlossen.',
     INVALID_SEGMENT: 'Wähle einen Ausstieg nach dem Einstieg.',
@@ -883,6 +889,7 @@ export async function getT() {
   };
 }
 
+export async function getRegistrationCopy() { const { locale } = await getT(); const { registrationCopy } = await import('./registration-copy'); return { locale, copy: registrationCopy[locale] }; }
 // Textele paginii publice folosesc aceeași selecție de limbă ca aplicația.
 export async function getLandingCopy() {
   const { landingCopy } = await import('./landing-copy');

@@ -22,6 +22,23 @@ aprobarea scrisă a proprietarului (Cristian). Asta include „îmbunătățiri�
 | 10-dispecerat-telefon.png | Dispecerat pe telefon |
 | 11-dispecerat-rezervare-noua.png | Dispecerat: rezervare nouă |
 | 12-super-admin.png | Panoul Super Admin |
+| 13-inscriere-pas-1-mobil.png | Înscriere: datele firmei, telefon |
+| 14-inscriere-pas-2-mobil.png | Înscriere: flotă și abonament, telefon |
+| 15-inscriere-pas-3-mobil.png | Înscriere: profil și verificare, telefon |
+| 16-inscriere-pas-1-desktop.png | Înscriere: datele firmei, desktop |
+| 17-inscriere-pas-2-desktop.png | Înscriere: flotă și abonament, desktop |
+| 18-inscriere-pas-3-desktop.png | Înscriere: profil și verificare, desktop |
+| 19-inscriere-pas-3-microbuze-mobil.png | Pasul 3 cu microbuzele obligatorii, aprobat de proprietar |
+| admin-pachete-1440.png | Pachetele din /admin, desktop 1440 px — aprobat vizual de proprietar |
+
+Ecranele 13–18: aprobate de proprietar în conversație la 23 septembrie 2026.
+Proprietarul a aprobat explicit adaptarea pașilor desktop 1 și 3 în aceeași structură
+cu meniul din stânga. Exporturile păstrează inscripția istorică „propunere/neaprobată”
+din machetă; starea de aprobare este consemnată aici. Noduri Figma: 3:3, 3:34, 3:62,
+9:2, 3:85, 9:65. Contul email/parolă precedă acești pași.
+
+Completarea fiecărui microbuz și verificarea documentelor rămân obligatorii înainte
+de trimitere; macheta nu înlocuiește regulile SQL. Lista microbuzelor din pasul 3, trimiterea blocată și butoanele individuale de completare au fost aprobate de proprietar. Referința suplimentară: 10:2.
 
 Figma: https://www.figma.com/design/STNwCQjEC1fQZF1Ztm2KRF (aceleași ecrane, ca imagini de referință).
 
@@ -58,3 +75,18 @@ Sunt în `apps/web/app/globals.css` (`:root`) și sunt verificate automat de
 - Ecrane noi care nu există în design (ex. înscrierea firmei), **folosind aceleași tokenuri și
   componente**, marcate în PR ca „ecran nou, necesită aprobarea proprietarului”.
 - Corectări de accesibilitate care nu schimbă aspectul (etichete, contrast deja respectat, focus).
+
+## Lista individuală din pasul 3
+
+`20-inscriere-lista-individuala-mobil.png` este captura implementării variantei
+aprobate de proprietar în cerința din 23 septembrie 2026: fiecare microbuz are
+lipsurile enumerate și buton direct de completare, iar trimiterea rămâne blocată
+până la completarea flotei. Date fictive, firmă deja salvată; captura completează
+referința Figma 19, fără a înlocui ecranele aprobate anterior.
+## Aprobarea vizuală a implementării din PR #7
+
+Proprietarul a aprobat explicit capturile implementării înscrierii, pașii 1–3,
+pe telefon și desktop, precum și ecranul nou cu pachetele din `/admin`.
+Captura `ecrane/admin-pachete-1440.png` consemnează acest ecran aprobat și este
+copiată fără modificări din captura prezentată în raportul PR #7.
+Această aprobare fixează designul; nu autorizează integrarea PR-ului sau modificarea producției.
