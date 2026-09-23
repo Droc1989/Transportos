@@ -12,9 +12,11 @@
   are vehicul de rezervă. Un „Cere ajutor” doar pentru urgențe poate veni după pilot.
 - **Prețul îl stabilește fiecare firmă**, pe persoană, pe porțiuni de rută
   (`route_template_prices`). Porțiunile fără preț se rezervă doar cu plata la șofer.
-- **Contul de client** (`client_profiles`): nume și telefon. Fișa de client a firmei se leagă de
-  cont; o fișă existentă, fără cont, se leagă doar dacă telefonul contului e confirmat prin SMS
-  (altfel oricine ar vedea istoricul altcuiva).
+- **Contul de client doar cu email** (decizia proprietarului, migrația 2500): fără confirmarea
+  telefonului prin SMS, deci fără costuri de SMS. Contul NU se leagă de fișa de client a firmei:
+  clientul vede doar rezervările făcute de contul lui (`bookings.client_user_id`); rezervările
+  vechi prin telefon nu apar în cont. Firma vede rezervarea online la fișa clientului cu același
+  telefon, deci istoricul rămâne la firmă. Două conturi cu același telefon nu își văd rezervările.
 - **Plăți prin Stripe Connect Standard**: fiecare firmă își conectează contul Stripe; plata se
   creează pe contul firmei (antetul `Stripe-Account`), fără `application_fee`. Banii intră direct
   la firmă; firma e vânzătorul și face rambursările.
@@ -32,5 +34,4 @@
 
 - Aplicația web are nevoie pe server de `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` și
   `SUPABASE_SERVICE_ROLE_KEY` (doar pentru webhook și conectarea contului Stripe).
-- Confirmarea telefonului prin SMS se configurează în Supabase Auth.
 - Licența de intermediere pentru căutarea publică trebuie confirmată de avocat/ARR înainte de lansare.

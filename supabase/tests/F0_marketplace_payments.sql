@@ -78,8 +78,8 @@ select t.ok((select status || '|' || source || '|' || price_cents from public.bo
 select t.ok((public.book_marketplace('00000000-0000-0000-0000-0000000004a1', 1, 7, 2, 'Arad', null, 'CASH', 'k1-cash-0001') ->> 'repeated')::boolean,
             'dubla apăsare întoarce aceeași rezervare');
 select t.ok((select count(*) from public.my_bookings()) = 1, 'clientul își vede rezervarea');
-select t.ok((select count(*) from public.bookings) = 1 and (select count(*) from public.customers) = 1,
-            'clientul vede doar rezervarea și fișa lui');
+select t.ok((select count(*) from public.bookings) = 1 and (select count(*) from public.customers) = 0,
+            'clientul vede doar rezervarea lui, nu și fișa de client a firmei');
 select t.raises($$select public.book_marketplace('00000000-0000-0000-0000-0000000004a1', 1, 7, 1, 'Arad', null, 'FULL', 'k1-full-0001')$$,
   'PAYMENT_OPTION_NOT_AVAILABLE', 'fără Stripe conectat, plata online nu e disponibilă');
 
@@ -166,22 +166,48 @@ update public.company_payment_settings set accepts_cash = false where company_id
 select t.raises($$select public.book_marketplace('00000000-0000-0000-0000-0000000004a1', 1, 4, 1, 'Arad', null, 'CASH', 'k1-nocash-001')$$,
   'PAYMENT_OPTION_NOT_AVAILABLE', 'firma care nu acceptă numerar nu primește rezervări cu plata la șofer');
 
--- ---------- 8. telefonul altcuiva ----------
+-- ---------- 8. doar email: telefonul altcuiva sau al unei fișe existente ----------
+-- Ana (+40700000001) are o rezervare veche, făcută prin telefon la dispecer.
+:as_disp_a
+select public.book_seats('00000000-0000-0000-0000-0000000004a1', '00000000-0000-0000-0000-0000000003a1', 1, 0, 4, p_confirm => true);
 :as_client2
-insert into public.client_profiles (user_id, full_name, phone) values ('00000000-0000-0000-0000-00000000cc02', 'Ana', '+40700000001');
+insert into public.client_profiles (user_id, full_name, phone) values ('00000000-0000-0000-0000-00000000cc02', 'Ana Online', '+40700000001');
 :as_owner_a
 update public.company_payment_settings set accepts_cash = true where company_id = '00000000-0000-0000-0000-0000000000a0';
 :as_client2
-select t.raises($$select public.book_marketplace('00000000-0000-0000-0000-0000000004a1', 1, 7, 1, 'Arad', null, 'CASH', 'k2-cash-0001')$$,
-  'PHONE_NOT_VERIFIED', 'fișa existentă a firmei nu se leagă de un cont cu telefon neconfirmat');
+select public.book_marketplace('00000000-0000-0000-0000-0000000004a1', 1, 7, 1, 'Arad', null, 'CASH', 'k2-cash-0002') as r5 \gset
+select t.ok((:'r5'::jsonb ->> 'booking_id') is not null,
+            'clientul cu rezervări vechi prin telefon rezervă online, doar cu emailul');
+select t.ok((select count(*) from public.my_bookings()) = 1 and (select count(*) from public.bookings) = 1,
+            'în cont vede doar rezervarea online, nu și rezervarea veche prin telefon');
+:as_disp_a
+select t.ok((select c.full_name from public.bookings b join public.customers c on c.id = b.customer_id
+             where b.id = (:'r5'::jsonb ->> 'booking_id')::uuid) = 'Ana'
+            and (select count(*) from public.bookings b join public.customers c on c.id = b.customer_id
+                 where c.phone = '+40700000001' and b.status <> 'CANCELLED') = 2,
+            'firma vede rezervarea online la aceeași fișă de client (tot istoricul la firmă)');
+select t.ok(exists (select 1 from public.get_passenger_manifest('00000000-0000-0000-0000-0000000004a1')
+                    where booking_id = (:'r5'::jsonb ->> 'booking_id')::uuid and full_name = 'Ana Online'),
+            'în lista de pasageri apare numele declarat de client la rezervarea online');
+select t.raises(format($$update public.bookings set client_user_id = '00000000-0000-0000-0000-00000000cc01' where id = %L$$, :'r5'::jsonb ->> 'booking_id'),
+  'FIELD_NOT_EDITABLE', 'personalul nu mută rezervarea online în contul altcuiva');
+select t.raises(format($$update public.bookings set amount_paid_cents = 9500, payment_status = 'PAID' where id = %L$$, :'r5'::jsonb ->> 'booking_id'),
+  'FIELD_NOT_EDITABLE', 'personalul nu marchează rezervarea „plătită” fără plată');
+
+-- Un al treilea cont cu același telefon ca clientul 1: niciunul nu vede rezervările celuilalt
 :as_system
-update auth.users set phone = '40700000001', phone_confirmed_at = now() where id = '00000000-0000-0000-0000-00000000cc02';
-:as_client2
-select public.book_marketplace('00000000-0000-0000-0000-0000000004a1', 1, 7, 1, 'Arad', null, 'CASH', 'k2-cash-0002');
-select t.ok((select user_id from public.customers where phone = '+40700000001') = '00000000-0000-0000-0000-00000000cc02',
-            'cu telefonul confirmat, fișa se leagă de cont');
-select t.ok((select count(*) from public.my_bookings()) = 1 and not exists (select 1 from public.my_bookings() where passengers = 2),
-            'clientul 2 nu vede rezervările clientului 1');
+insert into auth.users (id, email) values ('00000000-0000-0000-0000-00000000cc03', 'client3@test');
+\set as_client3 'set local role authenticated; set local "request.jwt.claim.sub" = ''00000000-0000-0000-0000-00000000cc03'';'
+:as_client3
+insert into public.client_profiles (user_id, full_name, phone) values ('00000000-0000-0000-0000-00000000cc03', 'Altcineva', '+40711000001');
+select public.book_marketplace('00000000-0000-0000-0000-0000000004a1', 1, 7, 1, 'Arad', null, 'CASH', 'k3-cash-0001');
+select t.ok((select count(*) from public.my_bookings()) = 1, 'contul 3 își vede doar rezervarea lui');
+:as_client1
+select t.ok(not exists (select 1 from public.my_bookings() where passengers = 1 and from_name = 'Arad' and status = 'CONFIRMED'
+                        and booking_id not in (select id from public.bookings where client_user_id = '00000000-0000-0000-0000-00000000cc01')),
+            'clientul 1 nu vede rezervarea contului 3, deși au același telefon');
+select t.ok((select count(*) from public.bookings where client_user_id = '00000000-0000-0000-0000-00000000cc03') = 0,
+            'nici direct din tabel');
 
 -- ---------- 9. anularea de către client ----------
 :as_client1

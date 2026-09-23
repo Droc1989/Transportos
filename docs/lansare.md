@@ -50,7 +50,7 @@ insert into public.platform_admins (user_id) values ('<id-ul tău>');
       `checkout.session.async_payment_succeeded`, `checkout.session.expired`,
       `checkout.session.async_payment_failed`, `charge.refunded`, `account.updated`.
 - [ ] Variabile pe serverul web: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`.
-- [ ] Supabase Auth: autentificare cu telefon (SMS) pentru confirmarea numărului clienților.
+- [ ] Supabase Auth: clienții își fac contul cu email (fără SMS); confirmarea emailului activată.
 - [ ] Fiecare firmă: „Plăți” → „Conectează contul Stripe al firmei”, apoi opțiunile de plată
       și prețurile pe porțiuni din „Rute”.
 
