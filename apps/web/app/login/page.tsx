@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getT } from '@/lib/i18n';
 import { LoginForm } from './login-form';
+import { loginDestination } from '@/lib/login-destination';
 
 export default async function LoginPage({
   searchParams,
@@ -15,7 +16,7 @@ export default async function LoginPage({
         <h1>{t('login.title')}</h1>
         {error === 'no_company' && <p className="alert alert-error">{t('login.noCompany')}</p>}
         <LoginForm
-          next={next ?? '/dispecerat'}
+          next={loginDestination(next)}
           labels={{
             email: t('login.email'),
             password: t('login.password'),

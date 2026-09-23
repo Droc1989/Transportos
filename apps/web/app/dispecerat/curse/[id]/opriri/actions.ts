@@ -7,6 +7,8 @@ import { requireStaffCompany } from '@/lib/company';
 import { errorMessage, text } from '@/lib/form';
 import { planOrder, routeLegs } from '@/lib/routing';
 import { applyStopPlan, buildStopPlan, type PlanStop } from '@/lib/routing/stop-plan';
+import { getT } from '@/lib/i18n';
+import { scheduleCoordinatesReady } from '@/lib/schedule-input';
 import { computeSchedule } from '@/lib/schedule';
 
 function back(tripId: string, params: Record<string, string> = {}): never {
@@ -59,8 +61,11 @@ async function recomputeTimes(supabase: Supabase, tripId: string): Promise<{ app
   }
 
   const start = ((points.data ?? []) as { lat: number; lng: number }[])[0];
-  const list = ((stops.data ?? []) as StopRow[]).filter((s) => s.lat !== null && s.lng !== null);
-  if (!start || list.length === 0) return { approximate: false };
+  const list = (stops.data ?? []) as StopRow[];
+  if (!scheduleCoordinatesReady(start, list)) {
+    const { t } = await getT();
+    return { approximate: false, error: t('stops.missingCoordinates') };
+  }
 
   const waypoints = [start, ...list].map((p) => ({ lat: p!.lat as number, lng: p!.lng as number }));
   const result = await routeLegs(waypoints);
@@ -100,6 +105,10 @@ export async function optimizeStops(form: FormData): Promise<void> {
     zone: s.kind === 'PICKUP' ? zones.get(s.booking_id)?.from_seq ?? 0 : zones.get(s.booking_id)?.to_seq ?? 0,
   }));
   const start = ((points.data ?? []) as { lat: number; lng: number }[])[0];
+  if (!scheduleCoordinatesReady(start, rows)) {
+    const { t } = await getT();
+    back(tripId, { error: t('stops.missingCoordinates') });
+  }
   const plan = start ? buildStopPlan(planStops, start) : null;
   if (!plan || plan.groups.length === 0) back(tripId, { optimized: 'none' });
 

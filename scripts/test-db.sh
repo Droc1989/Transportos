@@ -36,4 +36,6 @@ TEST_URL="$TEST_URL" bash "$ROOT/supabase/tests/concurrency.sh"
 
 echo "▶ Concurența aprobărilor pe pachet"
 TEST_URL="$TEST_URL" bash "$ROOT/supabase/tests/package_concurrency.sh"
+echo "▶ Concurența bugetului comun de adrese"
+TEST_URL="$TEST_URL" bash "$ROOT/supabase/tests/address_budget_concurrency.sh"
 echo "✔ Toate testele au trecut"

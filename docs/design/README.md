@@ -90,3 +90,13 @@ pe telefon și desktop, precum și ecranul nou cu pachetele din `/admin`.
 Captura `ecrane/admin-pachete-1440.png` consemnează acest ecran aprobat și este
 copiată fără modificări din captura prezentată în raportul PR #7.
 Această aprobare fixează designul; nu autorizează integrarea PR-ului sau modificarea producției.
+
+## Mesajul pentru coordonate lipsă — aprobat la 24 septembrie 2026
+
+Proprietarul a aprobat în conversație remedierea tuturor celor cinci probleme, inclusiv mesajul vizibil pentru ore incomplete. Mesajul folosește zona de erori existentă și tokenurile existente; nu schimbă așezarea paginii.
+
+RO: „Orele nu au fost calculate: lipsește punctul de plecare sau există opriri fără coordonate. Completează punctul de plecare și adresele opririlor alegând sugestiile, apoi recalculează. Dacă lista este goală, adaugă mai întâi o rezervare.”
+
+DE: „Die Zeiten wurden nicht berechnet: Der Startpunkt fehlt oder Stopps haben keine Koordinaten. Ergänzen Sie den Startpunkt und wählen Sie die Stoppadressen aus den Vorschlägen. Berechnen Sie danach erneut. Bei leerer Liste legen Sie zuerst eine Buchung an.”
+
+Aprobarea privește mesajul nou; celelalte ecrane și texte aprobate rămân fixate.
