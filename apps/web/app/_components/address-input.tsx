@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useId, useRef, useState } from 'react';
+import { LatestRequest } from '@/lib/latest-request';
 
 type AddressOption = { label: string; lat: number; lng: number; postcode: string | null };
 
@@ -24,25 +25,28 @@ export function AddressInput({
   const [searched, setSearched] = useState(false);
   const listId = useId();
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const abort = useRef<AbortController | null>(null);
+  const requests = useRef(new LatestRequest());
 
-  useEffect(() => () => { if (timer.current) clearTimeout(timer.current); abort.current?.abort(); }, []);
+  useEffect(() => {
+    const current = requests.current;
+    return () => { if (timer.current) clearTimeout(timer.current); current.invalidate(); };
+  }, [near, nearLat, nearLng]);
 
   function search(value: string) {
     if (timer.current) clearTimeout(timer.current);
+    requests.current.invalidate();
+    setOptions([]); setOpen(false); setActive(-1); setSearched(false);
     if (value.trim().length < 3) { setOptions([]); setOpen(false); setSearched(false); return; }
     // Așteptăm să termine de scris: fiecare căutare consumă din cota serviciului de adrese.
     timer.current = setTimeout(async () => {
-      abort.current?.abort();
-      const ctrl = new AbortController();
-      abort.current = ctrl;
+      const request = requests.current.start();
       const params = new URLSearchParams({ q: value });
       if (nearLat !== undefined && nearLng !== undefined) { params.set('lat', String(nearLat)); params.set('lng', String(nearLng)); }
       else if (near) params.set('near', near);
       try {
-        const res = await fetch(`/api/addresses?${params}`, { signal: ctrl.signal });
+        const res = await fetch(`/api/addresses?${params}`, { signal: request.signal });
         const data = (await res.json()) as { items: AddressOption[]; attribution: string | null; provider: string | null };
-        if (!data.provider) return; // fără serviciu de adrese configurat: câmp liber
+        if (!request.isCurrent() || !data.provider) return;
         setOptions(data.items); setAttribution(data.attribution); setActive(data.items.length ? 0 : -1);
         setOpen(true); setSearched(true);
       } catch { /* anulat sau fără rețea */ }
@@ -50,6 +54,8 @@ export function AddressInput({
   }
 
   function pick(o: AddressOption) {
+    if (timer.current) clearTimeout(timer.current);
+    requests.current.invalidate();
     setText(o.label); setPoint({ lat: o.lat, lng: o.lng }); setOpen(false); setOptions([]);
   }
 
