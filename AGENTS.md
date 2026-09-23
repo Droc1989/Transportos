@@ -3,6 +3,14 @@
 Citește acest fișier înainte de orice modificare. Regulile vin din master plan (§9, §14–16)
 și din deciziile din `docs/adr/`.
 
+## Designul e fixat
+
+Designul aprobat e în `docs/design/` (ecranele și tokenurile). **Nu schimba designul**: culori,
+fonturi, așezare, texte vizibile sau elemente de pe ecrane — nici ca „îmbunătățire”.
+Implementarea se apropie de design, nu invers. Ecran nou care nu există în design: folosește
+aceleași tokenuri și componente și marchează-l în PR ca „necesită aprobarea proprietarului”.
+`npm run check:design` (în CI) pică dacă tokenurile se schimbă.
+
 ## Nu schimba fără ADR și aprobare
 
 - Statusurile canonice (enum-urile din `20260923000100_extensions_and_types.sql`).
@@ -45,6 +53,7 @@ Dacă o sarcină cere așa ceva: oprește-te, scrie un ADR nou în `docs/adr/` �
 - [ ] Teste pentru logica nouă; pentru locuri, și test de concurență.
 - [ ] `npm run check:enums`, `npm run typecheck`, `npm run build` trec.
 - [ ] Texte în RO și DE; interfață utilizabilă pe telefon.
+- [ ] Designul din `docs/design/` respectat; `npm run check:design` trece.
 - [ ] Fără date personale în loguri.
 - [ ] ADR și README actualizate dacă s-a schimbat o decizie.
 - [ ] Un branch pe sarcină, PR, CI verde înainte de merge. Niciodată direct în producție.

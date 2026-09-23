@@ -13,7 +13,8 @@
     "test:db": "bash scripts/test-db.sh",
     "worker": "npm run start -w @transportos/worker",
     "test:worker": "npm run test -w @transportos/worker",
-    "test:web": "npm run test -w @transportos/web"
+    "test:web": "npm run test -w @transportos/web",
+    "check:design": "node scripts/check-design.mjs"
   },
   "engines": {
     "node": ">=20"
