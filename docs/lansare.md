@@ -64,6 +64,13 @@ insert into public.platform_admins (user_id) values ('<id-ul tău>');
 - [ ] Verifică: căutarea „Satu Nou” arată mai multe sate, cu județul; „Viena” găsește Wien;
       „80331” găsește München.
 
+## 2e. Adresele (stradă și număr)
+
+- [ ] Cont gratuit pe geoapify.com → cheie API → `GEOAPIFY_API_KEY` pe serverul web (Netlify).
+- [ ] Verifică: la rezervare, „Piața Unirii” dă sugestii cu mențiunea „Powered by Geoapify”.
+- [ ] Urmărește consumul în contul Geoapify. La apropierea de 3.000 de cereri pe zi: server Photon
+      propriu (OpenStreetMap) și `PHOTON_URL` în loc de cheia Geoapify (ADR-0012).
+
 ## 3. Workerul de notificări
 
 - [ ] Rulează `apps/worker` pe un server mic (VPS, Railway, Fly.io) cu `npm start`, sau

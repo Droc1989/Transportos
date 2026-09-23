@@ -37,11 +37,25 @@ export interface GeocodeResult {
   location: LatLng;
   postalCode?: string;
   countryCode?: string;
+  street?: string;
+  houseNumber?: string;
+  city?: string;
 }
 
-/** Autocompletare și geocodare de adrese. */
+export type GeocodeOptions = {
+  language?: 'ro' | 'de' | 'en';
+  countries?: string[];
+  /** Rezultatele din jurul acestui punct au prioritate (localitatea aleasă). */
+  near?: LatLng;
+  limit?: number;
+};
+
+/** Autocompletare și geocodare de adrese (străzi, numere). */
 export interface GeocodingProvider {
-  search(query: string, opts?: { language?: 'ro' | 'de' | 'en'; countries?: string[] }): Promise<GeocodeResult[]>;
+  readonly name: string;
+  /** Textul de atribuire cerut de licența datelor (afișat sub sugestii). */
+  readonly attribution: string;
+  search(query: string, opts?: GeocodeOptions): Promise<GeocodeResult[]>;
 }
 
 export type NotificationChannel = 'PUSH' | 'SMS' | 'WHATSAPP' | 'EMAIL';

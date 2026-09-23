@@ -59,6 +59,7 @@ Pozele microbuzelor sunt în `vehicle_photos` (EXTERIOR, INTERIOR, LUGGAGE, OTHE
 | `get_marketplace_offer(trip, from_seq, to_seq, passengers)` | Oferta unei curse, pentru pagina de rezervare (anonim). |
 | `book_marketplace(trip, from, to, passengers, pickup, notes, 'FULL'/'DEPOSIT'/'CASH', idempotency_key)` | Rezervarea clientului; întoarce plata de făcut și contul Stripe al firmei. |
 | `attach_payment_session(payment, session_id)` | Leagă sesiunea Stripe de plată (o singură dată). |
+| `set_my_pickup_point(booking, lat, lng)` | Punctul exact al adresei de preluare alese de client (max. 50 km de traseu, înainte de plecare). |
 | `my_bookings()` / `client_cancel_booking(booking)` / `client_tracking_link(booking)` | Rezervările clientului, anularea în termen, linkul de urmărire. |
 | `record_cash_payment(booking, amount, idempotency_key)` | Restul încasat la destinație (șofer sau dispecer). |
 
