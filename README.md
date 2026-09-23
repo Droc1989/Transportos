@@ -129,6 +129,11 @@ Ce verifică testele:
   valabilă; clienții văd pozele și condițiile microbuzului cursei. Șoferii își completează singuri
   profilul (`/sofer`), firma îl aprobă.
 
+- **Marketplace și plăți** (ADR-0009): căutare publică (`/cauta`) cu toate firmele, ordonate
+  neutru; contul de client (`/contul-meu`); rezervare online cu plata integrală, avans sau la șofer,
+  direct în contul Stripe al firmei, fără comision; prețuri pe porțiuni stabilite de firmă;
+  restul încasat la destinație; anulare după regula firmei.
+
 ## Ce urmează
 
 1. **Aplicația șoferului (Expo)**, peste funcțiile din `docs/api-baza-de-date.md`. Până e gata,

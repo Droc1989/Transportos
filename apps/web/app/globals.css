@@ -257,3 +257,20 @@ label.check input { min-height: 0; width: 20px; height: 20px; accent-color: var(
 .track-photos img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 8px; }
 .site-thumbs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
 .site-thumbs img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 6px; }
+
+/* Marketplace */
+.market { max-width: 960px; margin: 0 auto; padding: 16px 20px 48px; }
+.market-head { display: flex; justify-content: space-between; align-items: center; padding: 8px 0 16px; font-weight: 700; }
+.market-form { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)) auto; gap: 10px; align-items: end; margin-bottom: 16px; }
+.offer { display: grid; grid-template-columns: 160px minmax(0, 1fr) auto; gap: 16px; align-items: center; }
+.offer-photo { width: 160px; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 10px; }
+.offer-head { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+.offer-time { font-family: var(--font-mono); font-weight: 700; font-size: 18px; }
+.offer-price { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; text-align: right; }
+.offer-price strong { font-size: 22px; }
+@media (max-width: 760px) {
+  .market-form { grid-template-columns: 1fr 1fr; }
+  .offer { grid-template-columns: 1fr; }
+  .offer-photo { width: 100%; }
+  .offer-price { align-items: stretch; text-align: left; }
+}
