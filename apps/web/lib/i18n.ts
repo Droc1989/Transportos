@@ -6,6 +6,7 @@ export type Locale = 'ro' | 'de';
 const dict = {
   ro: {
     'mk.title': 'Caută o cursă',
+    'mk.choosePlace': 'Alege orașul de plecare și destinația din listă pentru a căuta curse disponibile.',
     'mk.intro': 'Toate firmele de transport înscrise în TransportOS, ordonate după ora plecării. Alegi tu firma.',
     'mk.from': 'De unde pleci',
     'mk.to': 'Unde mergi',
@@ -391,6 +392,7 @@ const dict = {
     'payment.DEPOSIT_AND_REST': 'Avans și rest la destinație',
   },
   de: {
+    'mk.choosePlace': 'Wähle den Abfahrts- und Zielort aus der Liste, um verfügbare Fahrten zu suchen.',
     'mk.title': 'Fahrt suchen',
     'mk.intro': 'Alle bei TransportOS angemeldeten Transportunternehmen, sortiert nach Abfahrtszeit. Du wählst die Firma.',
     'mk.from': 'Abfahrt',
@@ -888,3 +890,9 @@ export async function getT() {
 }
 
 export async function getRegistrationCopy() { const { locale } = await getT(); const { registrationCopy } = await import('./registration-copy'); return { locale, copy: registrationCopy[locale] }; }
+// Textele paginii publice folosesc aceeași selecție de limbă ca aplicația.
+export async function getLandingCopy() {
+  const { landingCopy } = await import('./landing-copy');
+  const locale = await getLocale();
+  return { locale, copy: landingCopy[locale] };
+}
