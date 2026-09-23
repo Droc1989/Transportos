@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 export type NavLabels = Record<
-  'trips' | 'alerts' | 'requests' | 'newBooking' | 'newTrip' | 'routes' | 'vehicles' | 'drivers' | 'team' | 'export' | 'site',
+  'trips' | 'alerts' | 'requests' | 'newBooking' | 'newTrip' | 'routes' | 'vehicles' | 'drivers' | 'team' | 'export' | 'site' | 'payments',
   string
 >;
 
@@ -20,6 +20,7 @@ export function Nav({ labels, alertCount, requestCount }: { labels: NavLabels; a
     { href: '/dispecerat/vehicule', label: labels.vehicles },
     { href: '/dispecerat/soferi', label: labels.drivers },
     { href: '/dispecerat/site', label: labels.site },
+    { href: '/dispecerat/plati', label: labels.payments },
     { href: '/dispecerat/echipa', label: labels.team },
     { href: '/dispecerat/export', label: labels.export },
   ];

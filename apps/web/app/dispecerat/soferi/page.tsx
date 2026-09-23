@@ -1,7 +1,7 @@
 import { requireStaffCompany } from '@/lib/company';
-import { getT } from '@/lib/i18n';
+import { getT, type MessageKey } from '@/lib/i18n';
 import { ActionForm } from '../_components/action-form';
-import { addDriver, setDriverActive, unlinkDriver } from './actions';
+import { addDriver, reviewDriverProfile, setDriverActive, unlinkDriver } from './actions';
 import { InviteButton } from './invite-button';
 
 type Driver = {
@@ -10,6 +10,10 @@ type Driver = {
   phone: string | null;
   active: boolean;
   user_id: string | null;
+  profile_status: string;
+  public_bio: string | null;
+  photo_url: string | null;
+  public_consent_at: string | null;
 };
 
 export default async function DriversPage() {
@@ -18,7 +22,7 @@ export default async function DriversPage() {
 
   const { data, error } = await supabase
     .from('drivers')
-    .select('id, full_name, phone, active, user_id')
+    .select('id, full_name, phone, active, user_id, profile_status, public_bio, photo_url, public_consent_at')
     .eq('company_id', companyId)
     .order('active', { ascending: false })
     .order('full_name')
@@ -51,6 +55,28 @@ export default async function DriversPage() {
                     <td>
                       <strong>{d.full_name}</strong>
                       <div className="meta">{d.user_id ? t('drivers.hasAccount') : t('drivers.noAccount')}</div>
+                      <div className="meta">
+                        {t('drv.profile')}: <span className={`badge badge-${d.profile_status}`}>{t(`drv.profile.${d.profile_status}` as MessageKey)}</span>
+                        {d.public_consent_at ? ` · ${t('drv.consentYes')}` : ''}
+                      </div>
+                      {d.profile_status === 'SUBMITTED' && (
+                        <div style={{ marginTop: 6 }}>
+                          {d.photo_url && <img src={d.photo_url} alt="" className="thumb round" />}
+                          {d.public_bio && <p className="meta" style={{ margin: '4px 0' }}>„{d.public_bio}”</p>}
+                          {isAdmin && (
+                            <div className="actions" style={{ justifyContent: 'flex-start' }}>
+                              <form action={reviewDriverProfile}>
+                                <input type="hidden" name="id" value={d.id} /><input type="hidden" name="approve" value="true" />
+                                <button className="btn btn-small">{t('drv.approve')}</button>
+                              </form>
+                              <form action={reviewDriverProfile}>
+                                <input type="hidden" name="id" value={d.id} /><input type="hidden" name="approve" value="false" />
+                                <button className="btn btn-small">{t('drv.reject')}</button>
+                              </form>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </td>
                     <td>{d.phone ?? '—'}</td>
                     <td>{d.active ? t('drivers.active') : t('drivers.inactive')}</td>

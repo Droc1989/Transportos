@@ -91,8 +91,8 @@ ok('exportul CSV: antet, separator „;” pentru Excel, rezervarea de test');
 // Șoferul nu intră în dispecerat
 r = await page('/dispecerat', DRIVER);
 assert.equal(r.status, 307);
-assert.match(r.location ?? '', /no_company/);
-ok('șoferul nu are acces la dispecerat');
+assert.match(r.location ?? '', /\/sofer$/);
+ok('șoferul nu are acces la dispecerat; e trimis la profilul lui');
 
 // Super Admin
 r = await page('/admin', SUPER);

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { FEATURE_LABELS, type VehicleFeature } from '@transportos/shared';
 import { createAnonClient } from '@/lib/supabase/anon';
 import { AutoRefresh } from './auto-refresh';
 
@@ -50,6 +51,9 @@ const text = {
     vehicle: 'Vehicul',
     persons: 'persoane',
     mapNote: 'Poziția microbuzului se actualizează automat.',
+    yourVehicle: 'Microbuzul tău',
+    year: 'din',
+    luggage: 'Bagaj inclus',
     privacy: 'Vezi poziția microbuzului doar cât cursa ta e activă.',
     notesLabel: 'Indicațiile tale',
   },
@@ -72,6 +76,9 @@ const text = {
     vehicle: 'Fahrzeug',
     persons: 'Personen',
     mapNote: 'Die Position des Kleinbusses wird automatisch aktualisiert.',
+    yourVehicle: 'Dein Kleinbus',
+    year: 'Baujahr',
+    luggage: 'Inklusive Gepäck',
     privacy: 'Die Position ist nur sichtbar, solange deine Fahrt aktiv ist.',
     notesLabel: 'Deine Hinweise',
   },
@@ -89,9 +96,17 @@ function osmEmbed(points: { lat: number; lng: number }[], marker: { lat: number;
 
 export default async function TrackingPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
-  const { data, error } = await createAnonClient().rpc('get_tracking', { p_token: token });
+  const anon = createAnonClient();
+  const [{ data, error }, { data: vehicleData }] = await Promise.all([
+    anon.rpc('get_tracking', { p_token: token }),
+    anon.rpc('get_tracking_vehicle', { p_token: token }),
+  ]);
   if (error) throw error;
   if (!data) notFound();
+  const vehicleInfo = vehicleData as {
+    year: number | null; features: VehicleFeature[]; luggage_pieces: number | null; luggage_kg: number | null;
+    photos: { kind: string; url: string }[];
+  } | null;
 
   const d = data as Tracking;
   const lang = d.locale === 'de' ? 'de' : 'ro';
@@ -196,6 +211,22 @@ export default async function TrackingPage({ params }: { params: Promise<{ token
           </div>
         )}
       </dl>
+      {vehicleInfo && (vehicleInfo.photos.length > 0 || vehicleInfo.features.length > 0) && (
+        <section className="track-vehicle">
+          <h2>{t.yourVehicle}{vehicleInfo.year ? <span className="meta"> · {t.year} {vehicleInfo.year}</span> : null}</h2>
+          {vehicleInfo.photos.length > 0 && (
+            <div className="track-photos">
+              {vehicleInfo.photos.slice(0, 4).map((p) => <img key={p.url} src={p.url} alt="" loading="lazy" />)}
+            </div>
+          )}
+          <div className="feature-list">
+            {vehicleInfo.features.map((f) => <span key={f}>{FEATURE_LABELS[lang][f] ?? f}</span>)}
+          </div>
+          {vehicleInfo.luggage_pieces !== null && (
+            <p className="meta">{t.luggage}: {vehicleInfo.luggage_pieces} × {vehicleInfo.luggage_kg ?? '—'} kg</p>
+          )}
+        </section>
+      )}
       <p className="meta">{t.privacy}</p>
     </main>
   );

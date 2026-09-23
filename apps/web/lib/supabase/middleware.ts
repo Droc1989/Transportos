@@ -1,7 +1,7 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
-const PROTECTED_PREFIXES = ['/dispecerat', '/admin'];
+const PROTECTED_PREFIXES = ['/dispecerat', '/admin', '/sofer', '/contul-meu', '/rezerva'];
 
 /** Reîmprospătează sesiunea și trimite utilizatorii neautentificați la /login. */
 export async function updateSession(request: NextRequest) {
@@ -34,7 +34,8 @@ export async function updateSession(request: NextRequest) {
   if (isProtected && !user) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = '/login';
-    loginUrl.searchParams.set('next', request.nextUrl.pathname);
+    loginUrl.search = '';
+    loginUrl.searchParams.set('next', request.nextUrl.pathname + request.nextUrl.search);
     return NextResponse.redirect(loginUrl);
   }
 

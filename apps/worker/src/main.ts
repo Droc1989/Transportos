@@ -4,7 +4,8 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import type { NotificationChannel, NotificationProvider } from '@transportos/shared';
 import { ConsoleNotificationProvider } from './providers/console';
 import { TwilioNotificationProvider } from './providers/twilio';
-import { renderMessage, TEMPLATES_WITH_LINK, type OutboxParams } from './templates';
+import { ResendEmailProvider } from './providers/resend';
+import { COMPANY_TEMPLATES, renderMessage, subjectFor, TEMPLATES_WITH_LINK, type OutboxParams } from './templates';
 
 type OutboxRow = {
   id: number;
@@ -23,15 +24,22 @@ function env(name: string, required = true): string | undefined {
 }
 
 function buildProviders(): Partial<Record<NotificationChannel, NotificationProvider>> {
+  // Fără furnizor configurat pentru un canal: mesajele se afișează în consolă.
+  const consoleProvider = new ConsoleNotificationProvider();
+  const providers: Partial<Record<NotificationChannel, NotificationProvider>> = {
+    WHATSAPP: consoleProvider, SMS: consoleProvider, PUSH: consoleProvider, EMAIL: consoleProvider,
+  };
   const sid = env('TWILIO_ACCOUNT_SID', false);
   const token = env('TWILIO_AUTH_TOKEN', false);
   if (sid && token) {
     const twilio = new TwilioNotificationProvider(sid, token, env('TWILIO_WHATSAPP_FROM', false) ?? '', env('TWILIO_SMS_FROM', false));
-    return { WHATSAPP: twilio, SMS: twilio };
+    providers.WHATSAPP = twilio;
+    providers.SMS = twilio;
   }
-  // Fără furnizor configurat: mesajele se afișează în consolă (dezvoltare, pilot fără SMS).
-  const consoleProvider = new ConsoleNotificationProvider();
-  return { WHATSAPP: consoleProvider, SMS: consoleProvider, PUSH: consoleProvider, EMAIL: consoleProvider };
+  const resendKey = env('RESEND_API_KEY', false);
+  const emailFrom = env('EMAIL_FROM', false);
+  if (resendKey && emailFrom) providers.EMAIL = new ResendEmailProvider(resendKey, emailFrom);
+  return providers;
 }
 
 async function rpc<T>(db: SupabaseClient, fn: string, args: Record<string, unknown> = {}): Promise<T> {
@@ -54,7 +62,9 @@ export async function sendPending(
       const provider = providers[row.channel];
       if (!provider) throw new Error(`NO_PROVIDER_${row.channel}`);
       let link: string | null = null;
-      if (row.booking_id && TEMPLATES_WITH_LINK.has(row.template_key)) {
+      if (COMPANY_TEMPLATES[row.template_key]) {
+        link = `${siteUrl.replace(/\/$/, '')}${COMPANY_TEMPLATES[row.template_key]}`;
+      } else if (row.booking_id && TEMPLATES_WITH_LINK.has(row.template_key)) {
         const token = await rpc<string | null>(db, 'worker_tracking_link', { p_booking_id: row.booking_id });
         link = token ? `${siteUrl.replace(/\/$/, '')}/u/${token}` : null;
       }
@@ -63,7 +73,7 @@ export async function sendPending(
         to: row.recipient,
         channel: row.channel,
         templateKey: row.template_key,
-        params: { text },
+        params: { text, subject: subjectFor(row.template_key, row.locale) },
         locale: row.locale === 'de' || row.locale === 'en' ? row.locale : 'ro',
       });
       await rpc(db, 'finish_notification', { p_id: row.id, p_ok: true });
