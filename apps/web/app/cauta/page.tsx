@@ -17,7 +17,7 @@ type Offer = {
 };
 
 export default async function SearchPage({ searchParams }: {
-  searchParams: Promise<{ from?: string; to?: string; date?: string; pax?: string }>;
+  searchParams: Promise<{ from?: string; to?: string; date?: string; pax?: string; lat?: string; lng?: string }>;
 }) {
   const q = await searchParams;
   const { t, locale } = await getT();
@@ -29,15 +29,19 @@ export default async function SearchPage({ searchParams }: {
   const pax = Math.min(Math.max(Number(q.pax) || 1, 1), 20);
   const today = new Date().toISOString().slice(0, 10);
   const date = q.date && /^\d{4}-\d{2}-\d{2}$/.test(q.date) ? q.date : today;
-  const from = places.find((p) => p.id === q.from);
-  const to = places.find((p) => p.id === q.to);
+  const normalize = (value: string) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase();
+  const from = places.find((p) => p.id === q.from || normalize(p.name) === normalize(q.from ?? ''));
+  const to = places.find((p) => p.id === q.to || normalize(p.name) === normalize(q.to ?? ''));
+  const lat = Number(q.lat), lng = Number(q.lng);
+  const gps = q.lat && q.lng && Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180 ? { lat, lng } : null;
+  const pickup = from ?? gps;
 
   let offers: Offer[] | null = null;
-  if (from && to) {
+  if (pickup && to) {
     const start = zonedLocalToUtc(`${date}T00:00`, 'Europe/Bucharest')!;
     const end = new Date(start.getTime() + 24 * 3600 * 1000);
     const { data, error: sErr } = await anon.rpc('search_marketplace', {
-      p_pickup_lat: from.lat, p_pickup_lng: from.lng, p_dropoff_lat: to.lat, p_dropoff_lng: to.lng,
+      p_pickup_lat: pickup.lat, p_pickup_lng: pickup.lng, p_dropoff_lat: to.lat, p_dropoff_lng: to.lng,
       p_passengers: pax, p_window_start: start.toISOString(), p_window_end: end.toISOString(),
     });
     if (sErr) throw sErr;
@@ -56,11 +60,12 @@ export default async function SearchPage({ searchParams }: {
         <Link href="/contul-meu">{t('mk.account')}</Link>
       </header>
       <h1>{t('mk.title')}</h1>
+      {(q.to && !to || q.from && !from) && <p role="alert" className="alert alert-info">{t('mk.choosePlace')}</p>}
       <p className="lead">{t('mk.intro')}</p>
 
       <form method="get" className="card market-form">
         <label>{t('mk.from')}
-          <select name="from" defaultValue={q.from ?? ''} required>
+          <select name="from" defaultValue={from?.id ?? ''} required>
             <option value="" disabled>—</option>
             {byCountry.map((c) => (
               <optgroup key={c} label={c}>{places.filter((p) => p.country === c).map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}</optgroup>
@@ -68,7 +73,7 @@ export default async function SearchPage({ searchParams }: {
           </select>
         </label>
         <label>{t('mk.to')}
-          <select name="to" defaultValue={q.to ?? ''} required>
+          <select name="to" defaultValue={to?.id ?? ''} required>
             <option value="" disabled>—</option>
             {byCountry.map((c) => (
               <optgroup key={c} label={c}>{places.filter((p) => p.country === c).map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}</optgroup>
