@@ -6,3 +6,6 @@ node_modules/
 .DS_Store
 supabase/.temp/
 supabase/.branches/
+
+# datele descărcate de scripts/import-places.mjs
+.geonames/

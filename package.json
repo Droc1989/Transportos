@@ -14,7 +14,9 @@
     "worker": "npm run start -w @transportos/worker",
     "test:worker": "npm run test -w @transportos/worker",
     "test:web": "npm run test -w @transportos/web",
-    "check:design": "node scripts/check-design.mjs"
+    "check:design": "node scripts/check-design.mjs",
+    "test:scripts": "node --test scripts/*.test.mjs",
+    "import:places": "node scripts/import-places.mjs"
   },
   "engines": {
     "node": ">=20"

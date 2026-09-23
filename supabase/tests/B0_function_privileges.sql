@@ -6,7 +6,7 @@ select t.ok(
    from pg_proc p join pg_namespace n on n.oid = p.pronamespace
    where n.nspname = 'public' and has_function_privilege('anon', p.oid, 'execute')
      and p.prokind = 'f' and p.prorettype <> 'trigger'::regtype)
-  = array['get_company_site', 'get_marketplace_offer', 'get_site_post', 'get_tracking', 'get_tracking_vehicle', 'public_places', 'resolve_site_domain', 'search_marketplace', 'submit_booking_request']::name[],
+  = array['get_company_site', 'get_marketplace_offer', 'get_places', 'get_site_post', 'get_tracking', 'get_tracking_vehicle', 'public_places', 'resolve_site_domain', 'search_marketplace', 'search_places', 'submit_booking_request']::name[],
   'anonimul poate apela doar funcțiile publice (urmărire, site-uri)');
 
 -- Funcțiile workerului: executabile de service_role, nu de utilizatori
@@ -23,7 +23,8 @@ from unnest(array[
   'public.mark_payment_paid(text, integer)',
   'public.mark_payment_expired(text)',
   'public.mark_payment_refunded(text)',
-  'public.set_company_stripe_account(uuid, text, boolean)'
+  'public.set_company_stripe_account(uuid, text, boolean)',
+  'public.import_places(jsonb)'
 ]) as f;
 
 select t.ok(not bool_or(has_function_privilege('authenticated', f, 'execute')), 'utilizatorii nu rulează funcțiile workerului')

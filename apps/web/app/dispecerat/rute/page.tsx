@@ -1,7 +1,7 @@
 import { requireStaffCompany } from '@/lib/company';
 import { getT } from '@/lib/i18n';
 import { deleteRoutePrice, saveRoutePrice } from './actions';
-import { RouteBuilder, type Place } from './route-builder';
+import { RouteBuilder } from './route-builder';
 
 type Template = {
   id: string;
@@ -14,17 +14,15 @@ export default async function RoutesPage() {
   const { supabase, companyId } = await requireStaffCompany();
   const { t } = await getT();
 
-  const [{ data: templates, error: tErr }, { data: places, error: pErr }] = await Promise.all([
+  const [{ data: templates, error: tErr }] = await Promise.all([
     supabase
       .from('route_templates')
       .select('id, name, route_template_points(seq, places(name)), route_template_prices(from_seq, to_seq, price_cents)')
       .eq('company_id', companyId)
       .order('name')
       .returns<Template[]>(),
-    supabase.from('places').select('id, name, country').order('name').returns<Place[]>(),
   ]);
   if (tErr) throw tErr;
-  if (pErr) throw pErr;
 
   return (
     <>
@@ -92,7 +90,6 @@ export default async function RoutesPage() {
           )}
         </section>
         <RouteBuilder
-          places={places ?? []}
           labels={{
             name: t('routes.name'),
             points: t('routes.points'),
@@ -103,6 +100,7 @@ export default async function RoutesPage() {
             down: t('common.down'),
             create: t('routes.create'),
             saving: t('common.saving'),
+            noPlace: t('mk.noPlace'),
           }}
         />
       </div>
