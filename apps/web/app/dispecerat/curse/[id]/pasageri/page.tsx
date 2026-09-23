@@ -19,6 +19,8 @@ type Row = {
   price_cents: number | null;
   currency: string;
   status: BookingStatus;
+  amount_paid_cents: number;
+  amount_due_cents: number;
 };
 
 type Trip = {
@@ -101,6 +103,8 @@ export default async function PassengerListPage({ params }: { params: Promise<{ 
               <td>
                 {t(`payment.${r.payment_method}` as MessageKey)}
                 <div className="meta">{money(r.price_cents, r.currency)}</div>
+                {r.amount_paid_cents > 0 && <div className="meta">{t('acc.paid')}: {money(r.amount_paid_cents, r.currency)}</div>}
+                {r.amount_due_cents > 0 && <div><strong>{t('acc.due')}: {money(r.amount_due_cents, r.currency)}</strong></div>}
               </td>
             </tr>
           ))}

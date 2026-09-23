@@ -12,7 +12,8 @@
     "check:enums": "node scripts/check-enums.mjs",
     "test:db": "bash scripts/test-db.sh",
     "worker": "npm run start -w @transportos/worker",
-    "test:worker": "npm run test -w @transportos/worker"
+    "test:worker": "npm run test -w @transportos/worker",
+    "test:web": "npm run test -w @transportos/web"
   },
   "engines": {
     "node": ">=20"

@@ -32,6 +32,7 @@ export default async function DispatchLayout({ children }: { children: ReactNode
             alerts: t('nav.alerts'),
             requests: t('nav.requests'),
             site: t('nav.site'),
+            payments: t('nav.payments'),
             team: t('nav.team'),
             export: t('nav.export'),
             newBooking: t('nav.newBooking'),

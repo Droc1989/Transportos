@@ -42,6 +42,18 @@ insert into public.platform_admins (user_id) values ('<id-ul tău>');
       adresa hostingului), tu adaugi domeniul în Vercel → Domains, iar firma îl scrie în
       „Site-ul firmei”.
 
+## 2c. Plăți online (Stripe Connect)
+
+- [ ] Cont Stripe al platformei, cu Connect activat (tip de cont: Standard).
+- [ ] Webhook în Stripe către `https://<site>/api/stripe/webhook`, pentru contul platformei ȘI
+      pentru conturile conectate, cu evenimentele: `checkout.session.completed`,
+      `checkout.session.async_payment_succeeded`, `checkout.session.expired`,
+      `checkout.session.async_payment_failed`, `charge.refunded`, `account.updated`.
+- [ ] Variabile pe serverul web: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`.
+- [ ] Supabase Auth: autentificare cu telefon (SMS) pentru confirmarea numărului clienților.
+- [ ] Fiecare firmă: „Plăți” → „Conectează contul Stripe al firmei”, apoi opțiunile de plată
+      și prețurile pe porțiuni din „Rute”.
+
 ## 3. Workerul de notificări
 
 - [ ] Rulează `apps/worker` pe un server mic (VPS, Railway, Fly.io) cu `npm start`, sau
