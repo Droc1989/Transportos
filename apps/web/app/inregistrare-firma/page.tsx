@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { getLandingCopy, getT } from '@/lib/i18n';
+import { getT } from '@/lib/i18n';
 import { createClient } from '@/lib/supabase/server';
 import { CompanyForm } from './company-form';
 
@@ -10,7 +10,6 @@ export default async function RegisterCompanyPage() {
     data: { user },
   } = await supabase.auth.getUser();
   const { t } = await getT();
-  const { copy } = await getLandingCopy();
 
   if (user) {
     // Cine are deja o firmă (ca personal) merge direct în dispecerat.
@@ -24,7 +23,6 @@ export default async function RegisterCompanyPage() {
       <div className="card" style={{ maxWidth: 640 }}>
         <h1>{t('reg.title')}</h1>
         <p className="meta">{t('reg.intro')}</p>
-        <p className="alert alert-info">{copy.packages}</p>
         {!user ? (
           <>
             <p>{t('reg.needAccount')}</p>
