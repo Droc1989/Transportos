@@ -1,3 +1,4 @@
+import { Landing } from './_landing/landing';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 
@@ -8,7 +9,7 @@ export default async function Home() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) redirect('/cauta');
+  if (!user) return <Landing />;
   const { data: isAdmin } = await supabase.rpc('is_platform_admin');
   if (isAdmin === true) redirect('/admin');
   const { data: roles } = await supabase.from('company_members').select('role').eq('user_id', user.id);
