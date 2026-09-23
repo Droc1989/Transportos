@@ -13,6 +13,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
           <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--accent)' }}>Super Admin</div>
         </div>
         <Link href="/admin">Firme</Link>
+        <Link href="/admin/aprobari">De aprobat</Link>
         <form action={signOut}>
           <button className="btn btn-ghost">Ieși din cont</button>
         </form>

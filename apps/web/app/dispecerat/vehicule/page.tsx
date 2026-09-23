@@ -1,10 +1,13 @@
 import { requireStaffCompany } from '@/lib/company';
-import { getT } from '@/lib/i18n';
+import Link from 'next/link';
+import { getT, type MessageKey } from '@/lib/i18n';
 import { ActionForm } from '../_components/action-form';
 import { addVehicle, setVehicleState } from './actions';
 
 type Vehicle = {
   id: string;
+  manufacture_year: number | null;
+  approval_status: 'PENDING' | 'APPROVED' | 'REJECTED';
   label: string;
   plate: string | null;
   seats: number;
@@ -13,12 +16,12 @@ type Vehicle = {
 };
 
 export default async function VehiclesPage() {
-  const { supabase, companyId } = await requireStaffCompany();
+  const { supabase, companyId } = await requireStaffCompany({ allowPending: true });
   const { t } = await getT();
 
   const { data, error } = await supabase
     .from('vehicles')
-    .select('id, label, plate, seats, status, is_standby')
+    .select('id, label, plate, seats, status, is_standby, manufacture_year, approval_status')
     .eq('company_id', companyId)
     .order('is_standby')
     .order('label')
@@ -41,6 +44,7 @@ export default async function VehiclesPage() {
                   <th>{t('vehicles.label')}</th>
                   <th>{t('vehicles.plate')}</th>
                   <th>{t('vehicles.seats')}</th>
+                  <th>{t('veh.year')}</th>
                   <th>{t('vehicles.status')}</th>
                   <th />
                 </tr>
@@ -51,7 +55,12 @@ export default async function VehiclesPage() {
                     <td className="plate">{v.label}</td>
                     <td>{v.plate ?? '—'}</td>
                     <td>{v.seats}</td>
-                    <td>{v.is_standby ? t('standby') : v.status}</td>
+                    <td>{v.manufacture_year ?? '—'}</td>
+                    <td>
+                      <span className={`badge badge-${v.approval_status}`}>{t(`veh.approval.${v.approval_status}` as MessageKey)}</span>
+                      <div className="meta">{v.is_standby ? t('standby') : v.status}</div>
+                      <Link href={`/dispecerat/vehicule/${v.id}`}>{t('veh.details')}</Link>
+                    </td>
                     <td>
                       <div className="actions">
                         <form action={setVehicleState}>
@@ -96,10 +105,16 @@ export default async function VehiclesPage() {
                 <input name="seats" type="number" min={1} max={60} defaultValue={8} required />
               </label>
             </div>
-            <label>
-              {t('vehicles.plate')} ({t('common.optional')})
-              <input name="plate" maxLength={15} />
-            </label>
+            <div className="row">
+              <label>
+                {t('vehicles.plate')}
+                <input name="plate" maxLength={15} required />
+              </label>
+              <label>
+                {t('veh.year')}
+                <input name="manufacture_year" type="number" min={1980} max={2100} required />
+              </label>
+            </div>
             <label className="check">
               <input type="checkbox" name="is_standby" />
               {t('vehicles.standby')}

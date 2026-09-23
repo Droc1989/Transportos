@@ -28,11 +28,49 @@ locuri, stări și poziții trece prin funcțiile de mai jos.
 | `get_dispatch_alerts(company, since)` | SOS deschise + preluări în pericol/ratate. |
 | `acknowledge_emergency(event)` / `resolve_emergency(event)` | Dispecerul a văzut alerta / a rezolvat-o. |
 | `create_staff_invite(company, role)` | Cod pentru dispecer/admin (proprietar: doar proprietarul sau Super Admin). |
+| `change_member_role(company, user, role)` | Schimbă rolul unui membru (OWNER/ADMIN/DISPATCHER). Nimeni nu își schimbă propriul rol; rolul OWNER îl atinge doar un OWNER; rămâne mereu cel puțin un OWNER. |
+| `remove_member(company, user)` | Scoate un membru (sau pleci singur). Șoferului i se dezleagă și contul. |
+
+Membrii nu se mai scriu direct în `company_members`. La firmă, personalul poate schimba doar
+`name`; la șofer doar `full_name`, `phone`, `active` (contul și acordul trec prin funcții).
+
+## Înscrierea firmei
+
+| Funcție | Ce face |
+|---|---|
+| `register_company(name, slug, country, registration_no, license_no, phone, accept_terms)` | Firma nouă, în verificare; cel care se înscrie devine proprietar. |
+| `declare_vehicle_insurance(vehicle, rca_until, passenger_until, confirm)` | Declarația RCA + asigurare pasageri, cu data și cine a declarat. |
+| `get_registration_checklist(company)` | Ce mai lipsește până la trimitere (date, termeni, microbuze complete, microbuze vechi). |
+| `submit_company_for_review(company)` | Trimite cererea (doar dacă lista e completă). |
+| `update_my_driver_profile(company, bio, languages, driving_since, photo_url, consent)` | Șoferul își completează profilul și își dă acordul. |
+| `review_driver_profile(driver, approve, note)` | Firma (admin) aprobă profilul șoferului. |
+
+Pozele microbuzelor sunt în `vehicle_photos` (EXTERIOR, INTERIOR, LUGGAGE, OTHER); condițiile în
+`vehicles.features` (listă fixă, `VEHICLE_FEATURES` în `packages/shared`).
+
+## Clienți (marketplace)
+
+| Funcție | Ce face |
+|---|---|
+| `public_places()` | Orașele cu coordonate (anonim), pentru căutare. |
+| `search_marketplace(pickup lat/lng, dropoff lat/lng, passengers, window, max_m)` | Cursele tuturor firmelor active, ordonate după plecare; preț, locuri, microbuz, opțiuni de plată (anonim). |
+| `get_marketplace_offer(trip, from_seq, to_seq, passengers)` | Oferta unei curse, pentru pagina de rezervare (anonim). |
+| `book_marketplace(trip, from, to, passengers, pickup, notes, 'FULL'/'DEPOSIT'/'CASH', idempotency_key)` | Rezervarea clientului; întoarce plata de făcut și contul Stripe al firmei. |
+| `attach_payment_session(payment, session_id)` | Leagă sesiunea Stripe de plată (o singură dată). |
+| `my_bookings()` / `client_cancel_booking(booking)` / `client_tracking_link(booking)` | Rezervările clientului, anularea în termen, linkul de urmărire. |
+| `record_cash_payment(booking, amount, idempotency_key)` | Restul încasat la destinație (șofer sau dispecer). |
+
+Webhook-ul Stripe (service_role): `mark_payment_paid(session, amount)`, `mark_payment_expired(session)`,
+`mark_payment_refunded(session)`, `set_company_stripe_account(company, account, charges_enabled)`.
 
 ## Super Admin
 
 | Funcție | Ce face |
 |---|---|
+| `admin_pending_companies()` | Firme care așteaptă aprobarea și firme active cu microbuze noi. |
+| `review_vehicle(vehicle, approve, note)` | Aprobă sau respinge un microbuz (respingerea cere motiv). |
+| `review_company(company, approve, reason)` | Aprobă (cere un microbuz aprobat) sau respinge firma; patronul primește email. |
+| `min_vehicle_year()` | Anul minim din `platform_settings` (implicit 2012). |
 | `create_company(name, slug, country, plan)` | Firmă nouă, cu setări și abonament. |
 | `admin_list_companies()` | Firmele, cu plan, abonament, vehicule și ultima activitate (fără date de clienți). |
 | `create_staff_invite(company, 'OWNER')` | Codul pentru patronul firmei. |
@@ -67,6 +105,7 @@ Toate acțiunile șoferului sunt idempotente și nu depind de abonamentul firmei
 
 | Funcție | Ce face |
 |---|---|
+| `get_tracking_vehicle(token)` | Pozele, condițiile, anul și bagajul microbuzului cursei (fără număr de înmatriculare). |
 | `get_tracking(token)` | Singura funcție pentru vizitatori. Întoarce JSON cu firma, cursa, preluarea, câte opriri sunt înainte, iar de la 24 h înainte prenumele șoferului și vehiculul. Poziția exactă apare doar în cursă, când clientul e la bord sau microbuzul e aproape (≤ 3 opriri sau ETA < 90 min). Token greșit sau expirat → `null`. |
 
 Harta publică de pe prima pagină citește direct tabelul `public_live_trips`.

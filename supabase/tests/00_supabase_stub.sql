@@ -19,8 +19,10 @@ grant usage on schema auth to anon, authenticated, service_role;
 grant usage on schema public to anon, authenticated, service_role;
 
 create table if not exists auth.users (
-  id     uuid primary key,
-  email  text
+  id                  uuid primary key,
+  email               text,
+  phone               text,          -- ca în Supabase (autentificare cu telefon)
+  phone_confirmed_at  timestamptz
 );
 
 -- Ca în Supabase: utilizatorul curent vine din claim-ul JWT „sub”, fie din setarea veche

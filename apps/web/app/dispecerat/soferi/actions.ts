@@ -48,3 +48,14 @@ export async function unlinkDriver(form: FormData): Promise<void> {
   if (error) throw error;
   revalidatePath('/dispecerat/soferi');
 }
+
+export async function reviewDriverProfile(form: FormData): Promise<void> {
+  const { supabase } = await requireStaffCompany();
+  const { error } = await supabase.rpc('review_driver_profile', {
+    p_driver_id: text(form, 'id'),
+    p_approve: text(form, 'approve') === 'true',
+    p_note: text(form, 'note') || null,
+  });
+  if (error) throw error;
+  revalidatePath('/dispecerat/soferi');
+}
