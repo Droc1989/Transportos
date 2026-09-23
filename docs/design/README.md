@@ -29,6 +29,7 @@ aprobarea scrisă a proprietarului (Cristian). Asta include „îmbunătățiri�
 | 17-inscriere-pas-2-desktop.png | Înscriere: flotă și abonament, desktop |
 | 18-inscriere-pas-3-desktop.png | Înscriere: profil și verificare, desktop |
 | 19-inscriere-pas-3-microbuze-mobil.png | Pasul 3 cu microbuzele obligatorii, aprobat de proprietar |
+| admin-pachete-1440.png | Pachetele din /admin, desktop 1440 px — aprobat vizual de proprietar |
 
 Ecranele 13–18: aprobate de proprietar în conversație la 23 septembrie 2026.
 Proprietarul a aprobat explicit adaptarea pașilor desktop 1 și 3 în aceeași structură
@@ -82,3 +83,10 @@ aprobate de proprietar în cerința din 23 septembrie 2026: fiecare microbuz are
 lipsurile enumerate și buton direct de completare, iar trimiterea rămâne blocată
 până la completarea flotei. Date fictive, firmă deja salvată; captura completează
 referința Figma 19, fără a înlocui ecranele aprobate anterior.
+## Aprobarea vizuală a implementării din PR #7
+
+Proprietarul a aprobat explicit capturile implementării înscrierii, pașii 1–3,
+pe telefon și desktop, precum și ecranul nou cu pachetele din `/admin`.
+Captura `ecrane/admin-pachete-1440.png` consemnează acest ecran aprobat și este
+copiată fără modificări din captura prezentată în raportul PR #7.
+Această aprobare fixează designul; nu autorizează integrarea PR-ului sau modificarea producției.
