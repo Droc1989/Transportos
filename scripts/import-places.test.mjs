@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { deflateRawSync } from 'node:zlib';
-import { kindOf, parseAdmin1, parseGeonames, readZipEntry } from './import-places.mjs';
+import { kindOf, parseAdmin1, parseGeonames, parsePostcodes, readZipEntry } from './import-places.mjs';
 
 // Arhivă zip minimă (o intrare, comprimată), ca fișierele GeoNames.
 function makeZip(name, text) {
@@ -55,4 +55,18 @@ test('tipul localității', () => {
   assert.equal(kindOf('PPLA2', 900), 'town');
   assert.equal(kindOf('PPL', 3000), 'town');
   assert.equal(kindOf('PPL', 400), 'village');
+});
+
+test('codurile poștale: valide, fără dubluri, ș/ț corect', () => {
+  const pc = (cc, code, name, lat = '48.1', lng = '11.5') => [cc, code, name, 'A1', '01', '', '', '', '', lat, lng, '4'].join('\t');
+  const rows = parsePostcodes([
+    pc('DE', '80331', 'München'),
+    pc('DE', '80331', 'München'),        // dublură
+    pc('RO', '307241', 'Bulgăruş'),      // sedilă
+    pc('AT', '1010', 'Wien'),
+    pc('DE', 'ABC', 'Fals'),             // cod invalid
+    pc('FR', '75001', 'Paris'),          // altă țară
+    pc('HU', '6600', 'Szentes', 'x'),    // coordonate lipsă
+  ].join('\n'), ['RO', 'AT', 'DE', 'HU']);
+  assert.deepEqual(rows.map((r) => `${r.country} ${r.postcode} ${r.name}`), ['DE 80331 München', 'RO 307241 Bulgăruș', 'AT 1010 Wien']);
 });

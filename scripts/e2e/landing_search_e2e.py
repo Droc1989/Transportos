@@ -35,7 +35,7 @@ def search(page, frm, to, date=None, pax='2'):
     page.wait_for_load_state('networkidle')
     return page.inner_text('main')
 
-def pick(page, field, typed, option_text):
+def pick(page, field, typed, option_text, meta=None):
     # tastare reală, după ce pagina e complet încărcată (altfel câmpul nu reacționează încă)
     page.wait_for_load_state('networkidle')
     page.fill(f'#cauta-cursa input[name={field}]', '')
@@ -74,6 +74,19 @@ with sync_playwright() as p:
     assert page.locator(f'a[href*="/rezerva/{TRIP}"]').count() == 1, page.inner_text('main')[:500]
     assert page.input_value('input[name=from]') == 'Bulgăruș, Timiș'
     ok('sugestii: satul Bulgăruș → Wien, alese din listă, găsesc microbuzul care trece pe lângă sat')
+
+    # Cod poștal: „80331” în sugestii → München; fără alegere, „300001” → Timișoara (cod complet)
+    page.goto(WEB + '/')
+    page.wait_for_load_state('networkidle')
+    page.fill('#cauta-cursa input[name=from]', '')
+    page.locator('#cauta-cursa input[name=from]').press_sequentially('300001', delay=40)
+    pick(page, 'to', '80331', 'München')
+    page.click('#cauta-cursa button:has-text("Caută curse")')
+    page.wait_for_url(lambda u: '/cauta' in u, timeout=15000)
+    page.wait_for_load_state('networkidle')
+    assert page.locator('a[href*="/rezerva/00000000-0000-0000-0000-0000000004a1"]').count() == 1, page.inner_text('main')[:500]
+    assert page.input_value('input[name=from]') == 'Timișoara, Timiș' and page.input_value('input[name=to]') == 'München, Bayern'
+    ok('coduri poștale: „300001” → Timișoara și „80331” (din sugestii) → München găsesc cursa')
 
     # Sat cu același nume în mai multe județe: pagina întreabă care
     body = search(page, 'Satu Nou', 'Viena', local_date)

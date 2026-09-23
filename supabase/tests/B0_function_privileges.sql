@@ -24,7 +24,8 @@ from unnest(array[
   'public.mark_payment_expired(text)',
   'public.mark_payment_refunded(text)',
   'public.set_company_stripe_account(uuid, text, boolean)',
-  'public.import_places(jsonb)'
+  'public.import_places(jsonb)',
+  'public.import_postcodes(jsonb)'
 ]) as f;
 
 select t.ok(not bool_or(has_function_privilege('authenticated', f, 'execute')), 'utilizatorii nu rulează funcțiile workerului')

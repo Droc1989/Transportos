@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { placeLabel } from '@/lib/place-label';
 
-export type PlaceOption = { id: string; name: string; admin_name: string | null; country: string };
+export type PlaceOption = { id: string; name: string; admin_name: string | null; country: string; postcode?: string | null };
 
 /**
  * Câmp de localitate cu sugestii: vizitatorul scrie, apar localitățile potrivite (cu județul sau
@@ -86,7 +86,7 @@ export function PlaceInput({
               onMouseDown={(e) => { e.preventDefault(); pick(p); }}
             >
               <span className="place-name">{p.name}</span>
-              <span className="place-meta">{[p.admin_name, p.country].filter(Boolean).join(' · ')}</span>
+              <span className="place-meta">{[p.postcode, p.admin_name, p.country].filter(Boolean).join(' · ')}</span>
             </li>
           ))}
           {searched && options.length === 0 && noResults && <li className="place-empty">{noResults}</li>}
