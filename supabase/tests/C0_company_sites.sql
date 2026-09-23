@@ -33,7 +33,7 @@ select t.ok((select public_consent_at is not null from public.drivers where id =
             'acordul e înregistrat, cu data');
 :as_owner_a
 select t.raises($$update public.drivers set public_profile = true where id = '00000000-0000-0000-0000-0000000002a2'$$,
-  'drivers_public_needs_consent', 'nici direct în tabel nu se poate publica fără acord');
+  'permission denied', 'profilul public nu se bifează direct în tabel (doar prin funcția cu acord)');
 
 -- Vizitatorul vede site-ul publicat
 :as_anon
