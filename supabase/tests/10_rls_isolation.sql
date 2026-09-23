@@ -8,6 +8,20 @@ select t.ok((select count(*) from public.trips) = 1, 'dispecerul A vede doar cur
 select t.ok(not exists (select 1 from public.companies where slug = 'firma-b'), 'dispecerul A nu vede Firma B');
 
 -- Nu poate scrie în Firma B
+with changed as (
+  update public.customers set full_name = 'Acces interzis'
+  where id = '00000000-0000-0000-0000-0000000003b1' returning id
+)
+select t.ok((select count(*) from changed) = 0, 'dispecerul A nu modifică clientul B prin ID cunoscut');
+with removed as (
+  delete from public.customers where id = '00000000-0000-0000-0000-0000000003b1' returning id
+)
+select t.ok((select count(*) from removed) = 0, 'dispecerul A nu șterge clientul B prin ID cunoscut');
+select t.raises(
+  $$update public.customers set company_id = '00000000-0000-0000-0000-0000000000b0'
+    where id = '00000000-0000-0000-0000-0000000003a2'$$,
+  'row-level security', 'dispecerul nu poate transfera un client în altă firmă');
+
 select t.raises(
   $$insert into public.vehicles (company_id, label, seats) values ('00000000-0000-0000-0000-0000000000b0', 'X-1', 8)$$,
   'row-level security', 'dispecerul A nu poate adăuga vehicul în Firma B');
@@ -40,6 +54,16 @@ select t.ok((select count(*) from public.trips) = 1, 'șoferul vede cursa lui');
 select t.ok((select count(*) from public.bookings) = 1, 'șoferul vede rezervarea de pe cursa lui');
 select t.ok((select count(*) from public.customers) = 1, 'șoferul vede doar clientul de pe cursa lui (nu toți clienții)');
 select t.ok((select count(*) from public.vehicle_positions) = 0, 'șoferul nu citește istoricul GPS');
+with changed as (
+  update public.company_members set role = 'ADMIN'
+  where user_id = auth.uid() returning user_id
+)
+select t.ok((select count(*) from changed) = 0, 'șoferul nu își poate acorda rol de admin');
+with changed as (
+  update public.customers set full_name = 'Acces interzis'
+  where id = '00000000-0000-0000-0000-0000000003a1' returning id
+)
+select t.ok((select count(*) from changed) = 0, 'șoferul nu modifică datele clientului pe care îl poate citi');
 select t.raises(
   $$select public.book_seats('00000000-0000-0000-0000-0000000004a1', '00000000-0000-0000-0000-0000000003a1', 1, 0, 1)$$,
   'FORBIDDEN', 'șoferul nu poate crea rezervări');
@@ -63,6 +87,16 @@ select t.ok((select count(*) from public.audit_log where table_name = 'companies
 select t.ok((select count(*) from public.audit_log where table_name = 'bookings') >= 1, 'proprietarul A vede auditul rezervărilor');
 
 -- Anonim: nimic din datele firmelor
+-- Un cont autentificat fără apartenență nu primește drepturi de operator.
+:as_system
+insert into auth.users (id, email) values ('00000000-0000-0000-0000-00000000c001', 'fara-firma@test');
+set local role authenticated;
+set local "request.jwt.claim.sub" = '00000000-0000-0000-0000-00000000c001';
+select t.ok((select count(*) from public.customers) = 0, 'contul fără firmă nu citește clienți');
+select t.ok((select count(*) from public.bookings) = 0, 'contul fără firmă nu citește rezervări');
+select t.ok((select count(*) from public.company_members) = 0, 'contul fără firmă nu citește echipele');
+select t.ok((select count(*) from public.trips) = 0, 'contul fără firmă nu citește cursele interne');
+
 :as_anon
 select t.raises($$select count(*) from public.customers$$, 'permission denied', 'anonimul nu citește clienți');
 select t.raises($$select count(*) from public.companies$$, 'permission denied', 'anonimul nu citește firme');

@@ -5,7 +5,7 @@
 set -uo pipefail
 DIR="$(cd "$(dirname "$0")" && pwd)"
 URL="${TEST_URL:?}"
-PSQL=(psql -X -q -v ON_ERROR_STOP=1)
+PSQL=(psql -X -q -v ON_ERROR_STOP=1 -v VERBOSITY=verbose)
 TRIP='00000000-0000-0000-0000-0000000004a1'
 AS_DISP="set local role authenticated; set local \"request.jwt.claim.sub\" = '00000000-0000-0000-0000-00000000a002';"
 
@@ -42,7 +42,6 @@ fi
 # și singura regulă testată să fie constrângerea de suprapunere.
 "${PSQL[@]}" "$URL" -o /dev/null -c "delete from public.booking_seats
   where trip_id = '$TRIP' and seat_no = 1;"
-BOOKING=$("${PSQL[@]}" "$URL" -tA -c "select id from public.bookings where trip_id = '$TRIP' limit 1")
 for i in 1 2; do
   (
     "${PSQL[@]}" "$URL" -o /dev/null -c "begin;
@@ -55,9 +54,14 @@ for i in 1 2; do
 done
 wait
 DOK=$(ls "$TMP" | grep -c '^direct_ok_' || true)
-DEX=$(cat "$TMP"/direct_err_* 2>/dev/null | grep -c 'booking_seats_no_overlap' || true)
+# GiST exclusion checks can abort one concurrent inserter with 40P01 instead
+# of 23P01. Both protect the invariant; unrelated failures must still fail.
+# PostgreSQL documents this in src/backend/executor/execIndexing.c.
+DEX=$(cat "$TMP"/direct_err_* 2>/dev/null | grep -Ec 'ERROR:  (23P01|40P01):' || true)
+DIRECT_TAKEN=$("${PSQL[@]}" "$URL" -tA -c "select count(*) from public.booking_seats
+  where trip_id = '$TRIP' and seat_no = 1 and released_at is null")
 echo "   inserări directe reușite: $DOK, respinse de constrângere: $DEX"
-if [ "$DOK" -ne 1 ] || [ "$DEX" -ne 1 ]; then
+if [ "$DOK" -ne 1 ] || [ "$DEX" -ne 1 ] || [ "$DIRECT_TAKEN" != 1 ]; then
   echo "TEST EȘUAT: constrângerea de excludere sub concurență"
   cat "$TMP"/direct_err_* 2>/dev/null
   exit 1
