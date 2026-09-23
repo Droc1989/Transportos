@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { FEATURE_LABELS, type VehicleFeature } from '@transportos/shared';
 import { RichText, plainText } from '@/lib/rich-text';
 import { getSite, languageName, siteBase, siteLang, siteText, waLink } from '@/lib/site';
 import { RequestForm } from './request-form';
@@ -70,9 +71,19 @@ export default async function SiteHome({ params }: { params: Promise<{ slug: str
             {site.fleet.map((v) => (
               <li key={v.label} className="site-card">
                 {v.photo_url && <img src={v.photo_url} alt={v.label} className="site-photo" loading="lazy" />}
-                <strong>{v.label}</strong> <span className="meta">· {v.seats} {t.seats}</span>
+                <strong>{v.label}</strong> <span className="meta">· {v.seats} {t.seats}{v.year ? ` · ${v.year}` : ''}</span>
                 {v.description && <p>{v.description}</p>}
-                {v.amenities.length > 0 && <div className="site-tags">{v.amenities.map((a) => <span key={a}>{a}</span>)}</div>}
+                {(v.features.length > 0 || v.amenities.length > 0) && (
+                  <div className="site-tags">
+                    {v.features.map((f) => <span key={f}>{FEATURE_LABELS[lang][f as VehicleFeature] ?? f}</span>)}
+                    {v.amenities.filter((a) => !v.features.length).map((a) => <span key={a}>{a}</span>)}
+                  </div>
+                )}
+                {v.photos.length > 1 && (
+                  <div className="site-thumbs">
+                    {v.photos.slice(1, 4).map((p) => <img key={p.url} src={p.url} alt="" loading="lazy" />)}
+                  </div>
+                )}
               </li>
             ))}
           </ul>

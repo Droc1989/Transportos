@@ -1,7 +1,7 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
-const PROTECTED_PREFIXES = ['/dispecerat', '/admin'];
+const PROTECTED_PREFIXES = ['/dispecerat', '/admin', '/sofer'];
 
 /** Reîmprospătează sesiunea și trimite utilizatorii neautentificați la /login. */
 export async function updateSession(request: NextRequest) {

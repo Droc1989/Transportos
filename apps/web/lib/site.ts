@@ -18,7 +18,11 @@ export type SiteData = {
   accent_color: string;
   seo_description: string | null;
   routes: { name: string; note: string | null; price_from_cents: number | null; points: string[] }[];
-  fleet: { label: string; seats: number; description: string | null; photo_url: string | null; amenities: string[] }[];
+  fleet: {
+    label: string; seats: number; description: string | null; photo_url: string | null; amenities: string[];
+    year: number | null; features: string[]; luggage_pieces: number | null; luggage_kg: number | null;
+    photos: { kind: string; url: string }[];
+  }[];
   drivers: { name: string; bio: string | null; photo_url: string | null; languages: string[]; driving_since: number | null }[];
   posts: { slug: string; title: string; excerpt: string | null; cover_url: string | null; published_at: string }[];
 };

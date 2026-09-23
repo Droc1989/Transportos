@@ -81,3 +81,41 @@ export async function createOwnerInvite(
   if (error || typeof data !== 'string') return { value: null, error: await errorMessage(error) };
   return { value: data, error: null };
 }
+
+export async function reviewVehicle(form: FormData): Promise<void> {
+  const { supabase } = await requirePlatformAdmin();
+  const companyId = text(form, 'company_id');
+  const { error } = await supabase.rpc('review_vehicle', {
+    p_vehicle_id: text(form, 'vehicle_id'),
+    p_approve: text(form, 'approve') === 'true',
+    p_note: text(form, 'note') || null,
+  });
+  if (error) redirect(`/admin/firme/${companyId}?error=${encodeURIComponent(await errorMessage(error))}`);
+  revalidatePath(`/admin/firme/${companyId}`);
+  redirect(`/admin/firme/${companyId}`);
+}
+
+export async function reviewCompany(form: FormData): Promise<void> {
+  const { supabase } = await requirePlatformAdmin();
+  const companyId = text(form, 'company_id');
+  const { error } = await supabase.rpc('review_company', {
+    p_company_id: companyId,
+    p_approve: text(form, 'approve') === 'true',
+    p_reason: text(form, 'reason') || null,
+  });
+  if (error) redirect(`/admin/firme/${companyId}?error=${encodeURIComponent(await errorMessage(error))}`);
+  revalidatePath('/admin');
+  revalidatePath('/admin/aprobari');
+  redirect(`/admin/firme/${companyId}?reviewed=1`);
+}
+
+export async function setMinVehicleYear(form: FormData): Promise<void> {
+  const { supabase, userId } = await requirePlatformAdmin();
+  const year = Number(text(form, 'year'));
+  if (!Number.isInteger(year) || year < 1980 || year > 2100) redirect('/admin/aprobari');
+  const { error } = await supabase.from('platform_settings')
+    .upsert({ key: 'min_vehicle_year', value: year, updated_at: new Date().toISOString(), updated_by: userId });
+  if (error) throw error;
+  revalidatePath('/admin/aprobari');
+  redirect('/admin/aprobari');
+}

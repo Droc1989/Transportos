@@ -63,6 +63,10 @@ insert into public.company_members (company_id, user_id, role) values
 insert into public.vehicles (id, company_id, label, plate, seats) values
   ('00000000-0000-0000-0000-0000000001a1', '00000000-0000-0000-0000-0000000000a0', 'TM-01', 'TM01AAA', 8),
   ('00000000-0000-0000-0000-0000000001b1', '00000000-0000-0000-0000-0000000000b0', 'AR-01', 'AR01BBB', 8);
+-- microbuze aprobate de platformă, cu an și asigurări declarate (migrația 2300)
+update public.vehicles set approval_status = 'APPROVED', manufacture_year = 2019,
+       rca_valid_until = current_date + 300, passenger_insurance_until = current_date + 300,
+       insurance_declared_at = now();
 
 insert into public.drivers (id, company_id, user_id, full_name) values
   ('00000000-0000-0000-0000-0000000002a1', '00000000-0000-0000-0000-0000000000a0', '00000000-0000-0000-0000-00000000a003', 'Ionuț'),
