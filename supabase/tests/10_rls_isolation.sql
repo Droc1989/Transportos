@@ -54,11 +54,16 @@ select t.ok((select count(*) from public.trips) = 1, 'șoferul vede cursa lui');
 select t.ok((select count(*) from public.bookings) = 1, 'șoferul vede rezervarea de pe cursa lui');
 select t.ok((select count(*) from public.customers) = 1, 'șoferul vede doar clientul de pe cursa lui (nu toți clienții)');
 select t.ok((select count(*) from public.vehicle_positions) = 0, 'șoferul nu citește istoricul GPS');
-with changed as (
-  update public.company_members set role = 'ADMIN'
-  where user_id = auth.uid() returning user_id
-)
-select t.ok((select count(*) from changed) = 0, 'șoferul nu își poate acorda rol de admin');
+select t.raises(
+  $$update public.company_members set role = 'ADMIN'
+    where user_id = auth.uid()$$,
+  'permission denied', 'șoferul nu își poate acorda rol de admin');
+:as_system
+select t.ok((select role from public.company_members
+  where company_id = '00000000-0000-0000-0000-0000000000a0'
+    and user_id = '00000000-0000-0000-0000-00000000a003') = 'DRIVER',
+  'rolul șoferului a rămas DRIVER după tentativa de escaladare');
+:as_driver_a
 with changed as (
   update public.customers set full_name = 'Acces interzis'
   where id = '00000000-0000-0000-0000-0000000003a1' returning id
