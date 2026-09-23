@@ -34,4 +34,6 @@ done
 echo "▶ Test de concurență"
 TEST_URL="$TEST_URL" bash "$ROOT/supabase/tests/concurrency.sh"
 
+echo "▶ Concurența aprobărilor pe pachet"
+TEST_URL="$TEST_URL" bash "$ROOT/supabase/tests/package_concurrency.sh"
 echo "✔ Toate testele au trecut"

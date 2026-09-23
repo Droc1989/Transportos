@@ -1,0 +1,5 @@
+import {requirePlatformAdmin} from '@/lib/admin';
+import {getRegistrationCopy} from '@/lib/i18n';
+import {CatalogEditor,CompanyPackageEditor} from './editor';
+export async function PackageCatalogPanel(){const {supabase}=await requirePlatformAdmin();const {copy}=await getRegistrationCopy();const {data,error}=await supabase.from('vehicle_package_catalog').select('*').order('vehicles_from');if(error)throw error;return <section className="card" style={{marginTop:24}}><CatalogEditor copy={copy} packages={data??[]}/></section>;}
+export async function CompanyPackagePanel({id}:{id:string}){const {supabase}=await requirePlatformAdmin();const {copy}=await getRegistrationCopy();const [plan,catalog]=await Promise.all([supabase.from('company_vehicle_packages').select('*').eq('company_id',id).single(),supabase.from('vehicle_package_catalog').select('vehicles_to').order('vehicles_to',{ascending:false}).limit(1).single()]);if(plan.error)throw plan.error;if(catalog.error)throw catalog.error;return <section className="card" style={{marginBottom:24}}><CompanyPackageEditor copy={copy} plan={plan.data} max={catalog.data.vehicles_to} companyId={id}/></section>;}

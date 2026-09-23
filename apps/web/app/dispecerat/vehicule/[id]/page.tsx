@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { FEATURE_LABELS, VEHICLE_FEATURES, VEHICLE_PHOTO_KINDS } from '@transportos/shared';
 import { requireStaffCompany } from '@/lib/company';
-import { getT, type MessageKey } from '@/lib/i18n';
+import { getT, getRegistrationCopy, type MessageKey } from '@/lib/i18n';
 import { ActionForm } from '../../_components/action-form';
 import { declareInsurance, deleteVehiclePhoto, saveVehicleDetails, uploadVehiclePhotos } from './actions';
 
@@ -21,6 +21,7 @@ export default async function VehicleDetailPage({ params, searchParams }: {
   const { saved } = await searchParams;
   const { supabase, companyId, timeZone } = await requireStaffCompany({ allowPending: true });
   const { t, locale } = await getT();
+  const { copy } = await getRegistrationCopy();
 
   const [vehicle, photos] = await Promise.all([
     supabase.from('vehicles').select('id, label, plate, seats, manufacture_year, features, luggage_pieces, luggage_kg, public_description, rca_valid_until, passenger_insurance_until, insurance_declared_at, approval_status, approval_note')
@@ -35,7 +36,7 @@ export default async function VehicleDetailPage({ params, searchParams }: {
   const fmt = new Intl.DateTimeFormat(locale === 'de' ? 'de-AT' : 'ro-RO', { timeZone, dateStyle: 'medium', timeStyle: 'short' });
 
   return (
-    <>
+    <><p><Link href="/inregistrare-firma">{copy.returnRegistration}</Link></p>
       <h1>{t('veh.edit')} <span className="plate">{v.label}</span>{' '}
         <span className={`badge badge-${v.approval_status}`}>{t(`veh.approval.${v.approval_status}` as MessageKey)}</span>
       </h1>
