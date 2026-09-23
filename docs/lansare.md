@@ -59,7 +59,10 @@ insert into public.platform_admins (user_id) values ('<id-ul tău>');
 - [ ] După migrații, importă localitățile din RO, AT, DE, HU (o singură dată; se poate relua):
       `SUPABASE_URL=… SUPABASE_SERVICE_ROLE_KEY=… npm run import:places`
       (descarcă datele GeoNames în `.geonames/`; durează câteva minute).
-- [ ] Verifică: căutarea „Satu Nou” arată mai multe sate, cu județul; „Viena” găsește Wien.
+- [ ] Apoi codurile poștale: `SUPABASE_URL=… SUPABASE_SERVICE_ROLE_KEY=… npm run import:postcodes`
+      (raportează câte coduri s-au legat și câte au fost sărite).
+- [ ] Verifică: căutarea „Satu Nou” arată mai multe sate, cu județul; „Viena” găsește Wien;
+      „80331” găsește München.
 
 ## 3. Workerul de notificări
 

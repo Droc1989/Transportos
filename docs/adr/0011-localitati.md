@@ -27,6 +27,15 @@ peste 100.000 de localități, iar multe au același nume (zeci de „Satu Nou�
   microbuzul care trece pe lângă el.
 - `public_places()` întoarce doar cele 38 de orașe; lista completă nu se mai trimite în pagini.
 
+## Coduri poștale (completare)
+
+- **Sursa:** baza GeoNames de coduri poștale (aceeași licență), `npm run import:postcodes`, rulat
+  după localități. Fiecare cod se leagă de localitatea cu același nume cea mai apropiată (sub 20 km),
+  altfel de cea mai apropiată localitate (sub 3 km); altfel e sărit și numărat.
+- **Căutare:** „80331”, „8033” (început), „D-80331”, „80331 München”. Un cod complet e o potrivire
+  sigură; un cod comun mai multor sate le arată pe toate, ca vizitatorul să aleagă.
+- Sugestiile arată codul lângă localitate: „München · 80331 · Bayern · DE”.
+
 ## Consecințe
 
 - Baza de date crește cu ~100.000 de rânduri (câțiva zeci de MB, cu indexuri).

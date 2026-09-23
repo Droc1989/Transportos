@@ -5,6 +5,7 @@
 // Folosire:
 //   SUPABASE_URL=… SUPABASE_SERVICE_ROLE_KEY=… node scripts/import-places.mjs            # descarcă și importă
 //   node scripts/import-places.mjs --dir ./date-geonames --dry-run                       # fișiere locale, fără import
+//   … node scripts/import-places.mjs --postcodes                                          # codurile poștale (după localități)
 // Opțiuni: --countries RO,AT,DE,HU  --dir <folder cu RO.zip… și admin1CodesASCII.txt>  --dry-run  --batch 2000
 // Importul e idempotent: rulat din nou, actualizează localitățile existente (după identificatorul GeoNames).
 import { readFileSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
@@ -17,6 +18,8 @@ const COUNTRIES = opt('countries', 'RO,AT,DE,HU').split(',').map((c) => c.trim()
 const DIR = opt('dir', join(process.cwd(), '.geonames'));
 const DRY = args.includes('--dry-run');
 const BATCH = Number(opt('batch', '2000'));
+const POSTCODES = args.includes('--postcodes');
+const BASE_ZIP = 'https://download.geonames.org/export/zip';
 const BASE = 'https://download.geonames.org/export/dump';
 
 // Cod de localitate GeoNames (clasa P) care NU sunt localități de sine stătătoare.
@@ -93,6 +96,26 @@ export function parseAdmin1(text) {
   return map;
 }
 
+/** Transformă codurile poștale GeoNames (TSV) în rânduri pentru import_postcodes. */
+export function parsePostcodes(tsv, countries = COUNTRIES) {
+  const seen = new Set();
+  const rows = [];
+  for (const line of tsv.split('\n')) {
+    if (!line) continue;
+    const f = line.split('\t');
+    const [country, postcode, name] = f;
+    const lat = Number(f[9]);
+    const lng = Number(f[10]);
+    const code = (postcode ?? '').replace(/\s/g, '');
+    if (!countries.includes(country) || !/^[0-9]{3,6}$/.test(code) || !name || !Number.isFinite(lat) || !Number.isFinite(lng)) continue;
+    const key = `${country}|${code}|${name}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    rows.push({ country, postcode: code, name: country === 'RO' ? fixRo(name) : name, lat, lng });
+  }
+  return rows;
+}
+
 async function fetchTo(url, path) {
   if (existsSync(path)) return;
   const res = await fetch(url);
@@ -100,24 +123,45 @@ async function fetchTo(url, path) {
   writeFileSync(path, Buffer.from(await res.arrayBuffer()));
 }
 
-async function importBatch(rows) {
+async function importBatch(rows, fn = 'import_places') {
   const url = process.env.SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !key) throw new Error('lipsește SUPABASE_URL sau SUPABASE_SERVICE_ROLE_KEY');
   for (let attempt = 1; ; attempt += 1) {
-    const res = await fetch(`${url}/rest/v1/rpc/import_places`, {
+    const res = await fetch(`${url}/rest/v1/rpc/${fn}`, {
       method: 'POST',
       headers: { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ p_rows: rows }),
     });
-    if (res.ok) return Number(await res.text());
+    if (res.ok) return JSON.parse(await res.text());
     if (attempt >= 3) throw new Error(`import eșuat: ${res.status} ${await res.text()}`);
     await new Promise((r) => setTimeout(r, 2000 * attempt));
   }
 }
 
+async function importPostcodes() {
+  let linked = 0;
+  let skipped = 0;
+  for (const cc of COUNTRIES) {
+    const zipPath = join(DIR, `postal-${cc}.zip`);
+    await fetchTo(`${BASE_ZIP}/${cc}.zip`, zipPath);
+    const rows = parsePostcodes(readZipEntry(readFileSync(zipPath), `${cc}.txt`));
+    console.log(`${cc}: ${rows.length} coduri poștale`);
+    if (DRY) continue;
+    for (let i = 0; i < rows.length; i += BATCH) {
+      const r = await importBatch(rows.slice(i, i + BATCH), 'import_postcodes');
+      linked += r.linked; skipped += r.skipped;
+      process.stdout.write(`\r   legate: ${Math.min(i + BATCH, rows.length)}/${rows.length}`);
+    }
+    process.stdout.write('\n');
+  }
+  console.log(DRY ? '✔ verificare fără import (--dry-run)'
+    : `✔ ${linked} coduri legate de localități; ${skipped} sărite (fără localitate în apropiere)`);
+}
+
 async function main() {
   mkdirSync(DIR, { recursive: true });
+  if (POSTCODES) return importPostcodes();
   const adminPath = join(DIR, 'admin1CodesASCII.txt');
   await fetchTo(`${BASE}/admin1CodesASCII.txt`, adminPath);
   const admin1 = parseAdmin1(readFileSync(adminPath, 'utf8'));

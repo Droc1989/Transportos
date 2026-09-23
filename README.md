@@ -135,7 +135,8 @@ Ce verifică testele:
   restul încasat la destinație; anulare după regula firmei.
 
 - **Toate localitățile din RO, AT, DE, HU** (ADR-0011): sate, comune și orașe din GeoNames, cu
-  sugestii în câmpurile de căutare și la rutele firmelor; satele cu același nume se deosebesc prin județ.
+  sugestii în câmpurile de căutare și la rutele firmelor; satele cu același nume se deosebesc prin județ;
+  căutare și după codul poștal („80331”).
 
 ## Ce urmează
 
