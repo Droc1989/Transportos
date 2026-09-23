@@ -68,6 +68,8 @@ insert into public.platform_admins (user_id) values ('<id-ul tău>');
 
 - [ ] Cont gratuit pe geoapify.com → cheie API → `GEOAPIFY_API_KEY` pe serverul web (Netlify).
 - [ ] Verifică: la rezervare, „Piața Unirii” dă sugestii cu mențiunea „Powered by Geoapify”.
+- [ ] Aceeași cheie calculează orele pe drum real („Calculează orele”, fără mesajul „aproximative”)
+      și ordinea preluărilor („Optimizează ordinea preluărilor”) — ADR-0013.
 - [ ] Urmărește consumul în contul Geoapify. La apropierea de 3.000 de cereri pe zi: server Photon
       propriu (OpenStreetMap) și `PHOTON_URL` în loc de cheia Geoapify (ADR-0012).
 
