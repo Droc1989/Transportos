@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { FEATURE_LABELS, type VehicleFeature } from '@transportos/shared';
 import { getT } from '@/lib/i18n';
 import { createAnonClient } from '@/lib/supabase/anon';
+import { matchPlace } from '@/lib/place-match';
 import { zonedLocalToUtc } from '@/lib/time';
 
 export const metadata: Metadata = { title: 'Caută o cursă – TransportOS' };
@@ -28,17 +29,21 @@ export default async function SearchPage({ searchParams }: {
   const places = (placeRows ?? []) as Place[];
   const pax = Math.min(Math.max(Number(q.pax) || 1, 1), 20);
   const today = new Date().toISOString().slice(0, 10);
-  const date = q.date && /^\d{4}-\d{2}-\d{2}$/.test(q.date) ? q.date : today;
-  const normalize = (value: string) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase();
-  const from = places.find((p) => p.id === q.from || normalize(p.name) === normalize(q.from ?? ''));
-  const to = places.find((p) => p.id === q.to || normalize(p.name) === normalize(q.to ?? ''));
+  const hasDate = !!q.date && /^\d{4}-\d{2}-\d{2}$/.test(q.date);
+  const date = hasDate ? q.date! : today;
+  const from = matchPlace(q.from, places);
+  const to = matchPlace(q.to, places);
+  // Orașe scrise de vizitator, dar negăsite: îi spunem, nu arătăm o pagină goală.
+  const notFound = [q.from && !from && !(q.lat && q.lng) ? q.from : null, q.to && !to ? q.to : null]
+    .filter((v): v is string => !!v && v.trim() !== '');
   const lat = Number(q.lat), lng = Number(q.lng);
   const gps = q.lat && q.lng && Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180 ? { lat, lng } : null;
   const pickup = from ?? gps;
 
   let offers: Offer[] | null = null;
   if (pickup && to) {
-    const start = zonedLocalToUtc(`${date}T00:00`, 'Europe/Bucharest')!;
+    // Cu dată: toată ziua aleasă. „Acum” (fără dată): următoarele 24 de ore.
+    const start = hasDate ? zonedLocalToUtc(`${date}T00:00`, 'Europe/Bucharest')! : new Date();
     const end = new Date(start.getTime() + 24 * 3600 * 1000);
     const { data, error: sErr } = await anon.rpc('search_marketplace', {
       p_pickup_lat: pickup.lat, p_pickup_lng: pickup.lng, p_dropoff_lat: to.lat, p_dropoff_lng: to.lng,
@@ -60,13 +65,19 @@ export default async function SearchPage({ searchParams }: {
         <Link href="/contul-meu">{t('mk.account')}</Link>
       </header>
       <h1>{t('mk.title')}</h1>
-      {(q.to && !to || q.from && !from) && <p role="alert" className="alert alert-info">{t('mk.choosePlace')}</p>}
+      {notFound.length > 0 && (
+        <p role="alert" className="alert alert-info">
+          {t('mk.notFound').replace('{name}', notFound.map((n) => `„${n.trim()}”`).join(', '))}
+        </p>
+      )}
       <p className="lead">{t('mk.intro')}</p>
 
       <form method="get" className="card market-form">
         <label>{t('mk.from')}
-          <select name="from" defaultValue={from?.id ?? ''} required>
-            <option value="" disabled>—</option>
+          {/* După o căutare cu GPS, poziția rămâne în formular pentru o nouă căutare. */}
+          {gps && !from && <><input type="hidden" name="lat" value={gps.lat} /><input type="hidden" name="lng" value={gps.lng} /></>}
+          <select name="from" defaultValue={from?.id ?? ''} required={!gps || !!from}>
+            <option value="" disabled={!gps || !!from}>{gps && !from ? t('mk.myLocation') : '—'}</option>
             {byCountry.map((c) => (
               <optgroup key={c} label={c}>{places.filter((p) => p.country === c).map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}</optgroup>
             ))}

@@ -274,3 +274,6 @@ label.check input { min-height: 0; width: 20px; height: 20px; accent-color: var(
   .offer-photo { width: 100%; }
   .offer-price { align-items: stretch; text-align: left; }
 }
+/* Formularul de căutare nu iese din card pe telefon, oricât de lungi ar fi numele orașelor. */
+.market-form > label { min-width: 0; }
+.market-form select, .market-form input { width: 100%; max-width: 100%; min-width: 0; }
