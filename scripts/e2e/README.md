@@ -9,6 +9,8 @@ Două scripturi, pe o bază cu migrațiile și datele din `supabase/tests/fixtur
 - `onboarding.e2e.mjs`: înscrierea unei firme noi până la aprobare (cere `onboarding-users.sql`);
 - `marketplace_e2e.py`: căutare, rezervare, avans prin Stripe, webhook, restul la destinație, cu
   browser real (Playwright, Python) și `fake-stripe.mjs` (cere `marketplace-demo.sql`);
+- `landing_search_e2e.py`: căutarea de pe prima pagină → rezultate (nume fără diacritice, „Viena”,
+  GPS, oraș necunoscut, „Acum”, telefon și desktop), cu browser real (Playwright, Python);
 - `sites.e2e.mjs`: site-urile firmelor (conținut, text sigur, subdomeniu, domeniu propriu,
   cereri). Cere `site-demo.sql` încărcat după fixtures și build-ul web cu
   `NEXT_PUBLIC_ROOT_DOMAIN=transportos.test`.

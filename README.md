@@ -134,6 +134,9 @@ Ce verifică testele:
   direct în contul Stripe al firmei, fără comision; prețuri pe porțiuni stabilite de firmă;
   restul încasat la destinație; anulare după regula firmei.
 
+- **Toate localitățile din RO, AT, DE, HU** (ADR-0011): sate, comune și orașe din GeoNames, cu
+  sugestii în câmpurile de căutare și la rutele firmelor; satele cu același nume se deosebesc prin județ.
+
 ## Ce urmează
 
 1. **Aplicația șoferului (Expo)**, peste funcțiile din `docs/api-baza-de-date.md`. Până e gata,

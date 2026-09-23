@@ -52,13 +52,17 @@ Pozele microbuzelor sunt în `vehicle_photos` (EXTERIOR, INTERIOR, LUGGAGE, OTHE
 
 | Funcție | Ce face |
 |---|---|
-| `public_places()` | Orașele cu coordonate (anonim), pentru căutare. |
+| `public_places()` | Cele 38 de orașe de pe coridor, cu coordonate (anonim). |
+| `search_places(text, țară?, limită?)` | Localitățile din RO/AT/DE/HU după nume (fără diacritice, denumiri uzuale, început, asemănare), cu județul/regiunea (anonim). |
+| `get_places(id[])` | Localitățile alese, după identificator (anonim, max. 20). |
 | `search_marketplace(pickup lat/lng, dropoff lat/lng, passengers, window, max_m)` | Cursele tuturor firmelor active, ordonate după plecare; preț, locuri, microbuz, opțiuni de plată (anonim). |
 | `get_marketplace_offer(trip, from_seq, to_seq, passengers)` | Oferta unei curse, pentru pagina de rezervare (anonim). |
 | `book_marketplace(trip, from, to, passengers, pickup, notes, 'FULL'/'DEPOSIT'/'CASH', idempotency_key)` | Rezervarea clientului; întoarce plata de făcut și contul Stripe al firmei. |
 | `attach_payment_session(payment, session_id)` | Leagă sesiunea Stripe de plată (o singură dată). |
 | `my_bookings()` / `client_cancel_booking(booking)` / `client_tracking_link(booking)` | Rezervările clientului, anularea în termen, linkul de urmărire. |
 | `record_cash_payment(booking, amount, idempotency_key)` | Restul încasat la destinație (șofer sau dispecer). |
+
+Importul localităților (service_role): `import_places(rânduri)` — folosit de `npm run import:places`.
 
 Webhook-ul Stripe (service_role): `mark_payment_paid(session, amount)`, `mark_payment_expired(session)`,
 `mark_payment_refunded(session)`, `set_company_stripe_account(company, account, charges_enabled)`.

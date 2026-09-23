@@ -54,6 +54,13 @@ insert into public.platform_admins (user_id) values ('<id-ul tău>');
 - [ ] Fiecare firmă: „Plăți” → „Conectează contul Stripe al firmei”, apoi opțiunile de plată
       și prețurile pe porțiuni din „Rute”.
 
+## 2d. Localitățile (sate, comune, orașe)
+
+- [ ] După migrații, importă localitățile din RO, AT, DE, HU (o singură dată; se poate relua):
+      `SUPABASE_URL=… SUPABASE_SERVICE_ROLE_KEY=… npm run import:places`
+      (descarcă datele GeoNames în `.geonames/`; durează câteva minute).
+- [ ] Verifică: căutarea „Satu Nou” arată mai multe sate, cu județul; „Viena” găsește Wien.
+
 ## 3. Workerul de notificări
 
 - [ ] Rulează `apps/worker` pe un server mic (VPS, Railway, Fly.io) cu `npm start`, sau

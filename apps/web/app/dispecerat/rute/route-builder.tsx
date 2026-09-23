@@ -2,23 +2,21 @@
 
 import { useActionState, useState } from 'react';
 import type { FormState } from '@/lib/form';
+import { PlaceInput, type PlaceOption } from '../../_components/place-input';
 import { saveRoute } from './actions';
 
-export type Place = { id: string; name: string; country: string };
 
-type Labels = Record<'name' | 'points' | 'pick' | 'add' | 'remove' | 'up' | 'down' | 'create' | 'saving', string>;
+type Labels = Record<'name' | 'points' | 'pick' | 'add' | 'remove' | 'up' | 'down' | 'create' | 'saving' | 'noPlace', string>;
 
-const COUNTRY_ORDER = ['RO', 'HU', 'AT', 'DE'];
-
-export function RouteBuilder({ places, labels }: { places: Place[]; labels: Labels }) {
+export function RouteBuilder({ labels }: { labels: Labels }) {
   const [state, action, pending] = useActionState<FormState, FormData>(async (prev, form) => {
     const result = await saveRoute(prev, form);
     if (!result.error) setPoints([]);
     return result;
   }, { error: null });
-  const [points, setPoints] = useState<string[]>([]);
-  const [pick, setPick] = useState('');
-  const byId = new Map(places.map((p) => [p.id, p]));
+  const [points, setPoints] = useState<PlaceOption[]>([]);
+  const [pick, setPick] = useState<PlaceOption | null>(null);
+  const [pickKey, setPickKey] = useState(0);
 
   const move = (index: number, delta: number) =>
     setPoints((list) => {
@@ -42,12 +40,12 @@ export function RouteBuilder({ places, labels }: { places: Place[]; labels: Labe
         <div className="field">
           <span className="field-label">{labels.points}</span>
           <ol className="stops">
-            {points.map((id, i) => (
-              <li key={`${id}-${i}`}>
-                <input type="hidden" name="place_id" value={id} />
+            {points.map((p, i) => (
+              <li key={`${p.id}-${i}`}>
+                <input type="hidden" name="place_id" value={p.id} />
                 <span className="stop-no">{i + 1}</span>
                 <span className="stop-name">
-                  {byId.get(id)?.name} <span className="meta">{byId.get(id)?.country}</span>
+                  {p.name} <span className="meta">{[p.admin_name, p.country].filter(Boolean).join(' · ')}</span>
                 </span>
                 <button type="button" className="btn btn-small" onClick={() => move(i, -1)} aria-label={labels.up} disabled={i === 0}>↑</button>
                 <button type="button" className="btn btn-small" onClick={() => move(i, 1)} aria-label={labels.down} disabled={i === points.length - 1}>↓</button>
@@ -56,23 +54,18 @@ export function RouteBuilder({ places, labels }: { places: Place[]; labels: Labe
             ))}
           </ol>
           <div className="inline">
-            <select value={pick} onChange={(e) => setPick(e.target.value)} aria-label={labels.pick}>
-              <option value="">{labels.pick}</option>
-              {COUNTRY_ORDER.map((country) => (
-                <optgroup key={country} label={country}>
-                  {places.filter((p) => p.country === country).map((p) => (
-                    <option key={p.id} value={p.id}>{p.name}</option>
-                  ))}
-                </optgroup>
-              ))}
-            </select>
+            {/* Orice localitate din RO, AT, DE, HU: se caută după nume, cu sugestii. */}
+            <PlaceInput key={pickKey} name="pick_place" ariaLabel={labels.pick} placeholder={labels.pick}
+              noResults={labels.noPlace} onPick={(p) => setPick(p)} />
             <button
               type="button"
               className="btn btn-small"
               disabled={!pick}
               onClick={() => {
+                if (!pick) return;
                 setPoints((l) => [...l, pick]);
-                setPick('');
+                setPick(null);
+                setPickKey((k) => k + 1);
               }}
             >
               {labels.add}
