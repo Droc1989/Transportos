@@ -1,0 +1,20 @@
+{
+  "name": "transportos",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w @transportos/web",
+    "build": "npm run build -w @transportos/web",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "check:enums": "node scripts/check-enums.mjs",
+    "test:db": "bash scripts/test-db.sh",
+    "worker": "npm run start -w @transportos/worker",
+    "test:worker": "npm run test -w @transportos/worker"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
