@@ -9,3 +9,4 @@ supabase/.branches/
 
 # datele descărcate de scripts/import-places.mjs
 .geonames/
+*.tsbuildinfo
