@@ -6,6 +6,7 @@ Două scripturi, pe o bază cu migrațiile și datele din `supabase/tests/fixtur
   client anonim și worker, inclusiv linkul din mesajul trimis;
 - `pages.e2e.mjs`: paginile Next.js randate pe server, cu sesiuni de test pentru dispecer,
   proprietar, șofer și Super Admin;
+- `onboarding.e2e.mjs`: înscrierea unei firme noi până la aprobare (cere `onboarding-users.sql`);
 - `sites.e2e.mjs`: site-urile firmelor (conținut, text sigur, subdomeniu, domeniu propriu,
   cereri). Cere `site-demo.sql` încărcat după fixtures și build-ul web cu
   `NEXT_PUBLIC_ROOT_DOMAIN=transportos.test`.

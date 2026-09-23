@@ -55,10 +55,16 @@ insert into public.platform_admins (user_id) values ('<id-ul tău>');
 
 ## 4. Prima firmă
 
-1. `/admin` → „Firmă nouă” (nume, identificator, țară, plan Pilot).
-2. Pe pagina firmei: „Generează cod de proprietar” → trimite codul patronului pe WhatsApp.
-3. Patronul: `/inregistrare` → confirmă emailul → `/invitatie` → introduce codul.
-4. Patronul (sau tu, împreună cu el): Vehicule → Șoferi → Rute → Cursă nouă.
+1. Patronul: `/inregistrare-firma` → își face contul (email + parolă) → confirmă emailul →
+   completează datele firmei și acceptă termenii.
+2. Adaugă microbuzele: an, locuri, număr, poze exterior + interior, condiții, bagaj, declarația
+   de asigurare. Din „Înscriere” trimite cererea.
+3. Tu: `/admin/aprobari` → firma → verifici pozele (microbuzele vechi sunt marcate) → aprobi
+   microbuzele, apoi firma. Patronul primește emailul de aprobare.
+4. Patronul: Șoferi (cu codul de acces pentru fiecare) → Rute → Cursă nouă. Șoferii își
+   completează profilul pe `/sofer`, iar patronul îl aprobă din Șoferi.
+
+(Varianta veche rămâne pentru cazuri speciale: `/admin` → „Firmă nouă” → cod de proprietar.)
 5. Din Echipa: coduri pentru dispeceri. Din Șoferi: coduri pentru șoferi.
 6. Prima rezervare din „Rezervare nouă”; din „Opriri”: „Calculează orele” și „Link de urmărire”.
 7. „Site-ul firmei”: text, contact, poze, rutele și mașinile de pe site, șoferii care și-au dat

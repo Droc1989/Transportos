@@ -50,6 +50,16 @@ for (const code of sqlCodes) {
   if (!tsCodes.has(code)) { console.error(`✗ codul de eroare ${code} din SQL lipsește din DOMAIN_ERRORS`); failed = true; }
 }
 
+// Condițiile microbuzului: lista din SQL (vehicles.features) = VEHICLE_FEATURES
+const featSql = sql.match(/features\s+text\[\][\s\S]*?check \(features <@ array\[([\s\S]*?)\]/);
+const featTs = readFileSync(join(root, 'packages', 'shared', 'src', 'vehicles.ts'), 'utf8').match(/VEHICLE_FEATURES = \[([\s\S]*?)\]/);
+if (featSql && featTs) {
+  const a = [...featSql[1].matchAll(/'([A-Z_]+)'/g)].map((m) => m[1]);
+  const b = [...featTs[1].matchAll(/'([A-Z_]+)'/g)].map((m) => m[1]);
+  if (JSON.stringify(a) !== JSON.stringify(b)) { console.error(`✗ condițiile microbuzului diferă:\n   SQL: ${a}\n   TS:  ${b}`); failed = true; }
+  else console.log(`✔ ${a.length} condiții de microbuz identice între SQL și packages/shared`);
+}
+
 if (failed) process.exit(1);
 console.log(`✔ ${Object.keys(sqlEnums).length} enum-uri identice între SQL și packages/shared`);
 console.log(`✔ ${sqlCodes.size} coduri de eroare din SQL, toate în DOMAIN_ERRORS`);

@@ -123,6 +123,12 @@ Ce verifică testele:
   cerere. Firma îl editează din „Site-ul firmei”; cererile apar în „Cereri de pe site” și devin
   rezervări precompletate. Demo local: `/f/firma-demo`.
 
+- **Înscrierea firmelor cu aprobare** (ADR-0008): firma se înscrie singură, își adaugă
+  microbuzele cu poze, condiții și declarațiile de asigurare; Super Admin aprobă firma și fiecare
+  microbuz (cele mai vechi de 2012 marcate). Pe curse intră doar microbuze aprobate, cu asigurare
+  valabilă; clienții văd pozele și condițiile microbuzului cursei. Șoferii își completează singuri
+  profilul (`/sofer`), firma îl aprobă.
+
 ## Ce urmează
 
 1. **Aplicația șoferului (Expo)**, peste funcțiile din `docs/api-baza-de-date.md`. Până e gata,

@@ -6,7 +6,7 @@ select t.ok(
    from pg_proc p join pg_namespace n on n.oid = p.pronamespace
    where n.nspname = 'public' and has_function_privilege('anon', p.oid, 'execute')
      and p.prokind = 'f' and p.prorettype <> 'trigger'::regtype)
-  = array['get_company_site', 'get_site_post', 'get_tracking', 'resolve_site_domain', 'submit_booking_request']::name[],
+  = array['get_company_site', 'get_site_post', 'get_tracking', 'get_tracking_vehicle', 'resolve_site_domain', 'submit_booking_request']::name[],
   'anonimul poate apela doar funcțiile publice (urmărire, site-uri)');
 
 -- Funcțiile workerului: executabile de service_role, nu de utilizatori

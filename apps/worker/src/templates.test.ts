@@ -20,3 +20,13 @@ test('limbă necunoscută → română', () => {
 test('șablon necunoscut → eroare', () => {
   assert.throws(() => renderMessage('NOPE', 'ro', {}, null));
 });
+
+test('email de aprobare, în germană, cu linkul de autentificare', () => {
+  const text = renderMessage('COMPANY_APPROVED', 'de', { company: 'Huber Reisen' }, 'https://x/login');
+  assert.match(text, /Huber Reisen wurde in TransportOS freigegeben/);
+  assert.match(text, /https:\/\/x\/login$/);
+});
+
+test('respingerea conține motivul', () => {
+  assert.match(renderMessage('COMPANY_REJECTED', 'ro', { company: 'F', reason: 'Lipsește licența' }, null), /Motivul: Lipsește licența/);
+});

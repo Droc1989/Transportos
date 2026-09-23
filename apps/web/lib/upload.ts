@@ -12,12 +12,13 @@ export async function uploadSiteImage(
   companyId: string,
   file: FormDataEntryValue | null,
   folder: 'logo' | 'cover' | 'fleet' | 'drivers' | 'posts',
+  subfolder?: string,
 ): Promise<string | null> {
   if (!(file instanceof File) || file.size === 0) return null;
   const ext = ALLOWED[file.type];
   if (!ext) throw new Error('IMAGE_TYPE');
   if (file.size > MAX_BYTES) throw new Error('IMAGE_TOO_LARGE');
-  const path = `${companyId}/${folder}/${crypto.randomUUID()}.${ext}`;
+  const path = `${companyId}/${folder}/${subfolder ? `${subfolder}/` : ''}${crypto.randomUUID()}.${ext}`;
   const { error } = await supabase.storage.from('site-media').upload(path, file, { contentType: file.type, upsert: false });
   if (error) throw error;
   return supabase.storage.from('site-media').getPublicUrl(path).data.publicUrl;

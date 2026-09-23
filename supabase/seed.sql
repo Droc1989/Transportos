@@ -17,6 +17,15 @@ insert into public.vehicles (id, company_id, label, plate, seats) values
 insert into public.vehicles (id, company_id, label, plate, seats, status, is_standby) values
   ('22222222-2222-2222-2222-222222222205', '11111111-1111-1111-1111-111111111111', 'TM-05', 'TM05DEM', 8, 'STANDBY', true);
 
+-- microbuzele demo: aprobate, cu an și asigurări (migrația 2300)
+update public.vehicles set approval_status = 'APPROVED', manufacture_year = 2019, features = '{AC,USB,WIFI}',
+       luggage_pieces = 2, luggage_kg = 30, rca_valid_until = current_date + 300,
+       passenger_insurance_until = current_date + 300, insurance_declared_at = now()
+where company_id = '11111111-1111-1111-1111-111111111111';
+update public.companies set registration_no = 'RO00000000', license_no = 'ARR-DEMO-0001', contact_phone = '+40256000000',
+       terms_accepted_at = now(), submitted_at = now(), reviewed_at = now()
+where id = '11111111-1111-1111-1111-111111111111';
+
 insert into public.drivers (id, company_id, full_name, phone) values
   ('33333333-3333-3333-3333-333333333301', '11111111-1111-1111-1111-111111111111', 'Ionuț', '+40700000101'),
   ('33333333-3333-3333-3333-333333333302', '11111111-1111-1111-1111-111111111111', 'Florin', '+40700000102');

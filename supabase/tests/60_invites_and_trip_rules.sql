@@ -76,9 +76,9 @@ select public.book_seats('00000000-0000-0000-0000-0000000004a1', '00000000-0000-
 
 -- Vehicul mai mic decât locurile deja ocupate (4 locuri ocupate, vehicul nou cu 3)
 :as_system
-insert into public.vehicles (id, company_id, label, seats) values
-  ('00000000-0000-0000-0000-0000000001a3', '00000000-0000-0000-0000-0000000000a0', 'TM-03', 3),
-  ('00000000-0000-0000-0000-0000000001a4', '00000000-0000-0000-0000-0000000000a0', 'TM-04', 16);
+insert into public.vehicles (id, company_id, label, seats, approval_status) values
+  ('00000000-0000-0000-0000-0000000001a3', '00000000-0000-0000-0000-0000000000a0', 'TM-03', 3, 'APPROVED'),
+  ('00000000-0000-0000-0000-0000000001a4', '00000000-0000-0000-0000-0000000000a0', 'TM-04', 16, 'APPROVED');
 :as_disp_a
 select t.raises($$update public.trips set vehicle_id = '00000000-0000-0000-0000-0000000001a3'
                   where id = '00000000-0000-0000-0000-0000000004a1'$$,
