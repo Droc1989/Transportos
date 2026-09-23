@@ -55,9 +55,16 @@ for i in 1 2; do
 done
 wait
 DOK=$(ls "$TMP" | grep -c '^direct_ok_' || true)
-DEX=$(cat "$TMP"/direct_err_* 2>/dev/null | grep -c 'booking_seats_no_overlap' || true)
-echo "   inserări directe reușite: $DOK, respinse de constrângere: $DEX"
-if [ "$DOK" -ne 1 ] || [ "$DEX" -ne 1 ]; then
+# Două inserări simultane pe același loc pot fi refuzate în două feluri, ambele corecte:
+#  - booking_seats_no_overlap: a doua tranzacție vede rândul primei după ce aceasta a terminat;
+#  - deadlock detected: fiecare îl vede pe al celeilalte încă în lucru și îl așteaptă, iar
+#    Postgres oprește una dintre ele. Și atunci doar una rămâne; nu există loc dublat.
+DEX=$(cat "$TMP"/direct_err_* 2>/dev/null | grep -cE 'booking_seats_no_overlap|deadlock detected' || true)
+# Regula care contează, verificată direct: exact un rând activ pe acest loc și aceste porțiuni.
+ACTIVE=$("${PSQL[@]}" "$URL" -tA -c "select count(*) from public.booking_seats
+  where trip_id = '$TRIP' and seat_no = 1 and released_at is null")
+echo "   inserări directe reușite: $DOK, refuzate (constrângere sau deadlock): $DEX, rânduri active: $ACTIVE"
+if [ "$DOK" -ne 1 ] || [ "$DEX" -ne 1 ] || [ "$ACTIVE" -ne 1 ]; then
   echo "TEST EȘUAT: constrângerea de excludere sub concurență"
   cat "$TMP"/direct_err_* 2>/dev/null
   exit 1
