@@ -36,6 +36,12 @@ export async function bookSeat(_prev: FormState, form: FormData): Promise<FormSt
   });
   if (error) return { error: await errorMessage(error) };
   const r = data as BookResult;
+  // Adresa aleasă din sugestii: salvăm și punctul exact (șoferul ajunge la poartă, ora e corectă).
+  const lat = Number(text(form, 'pickup_address_lat')), lng = Number(text(form, 'pickup_address_lng'));
+  if (!r.repeated && text(form, 'pickup_address_lat') && Number.isFinite(lat) && Number.isFinite(lng)) {
+    // Dacă punctul e respins (prea departe de traseu), rezervarea rămâne valabilă, cu adresa text.
+    await supabase.rpc('set_my_pickup_point', { p_booking_id: r.booking_id, p_lat: lat, p_lng: lng });
+  }
   if (!r.payment_id || r.repeated) redirect('/contul-meu?ok=1');
 
   // Plata online: sesiune Stripe Checkout pe contul firmei (banii intră direct la firmă).

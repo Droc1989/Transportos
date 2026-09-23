@@ -6,6 +6,8 @@ export type Locale = 'ro' | 'de';
 const dict = {
   ro: {
     'mk.title': 'Caută o cursă',
+    'addr.none': 'Nicio adresă găsită. Poți scrie adresa liber (de ex. „casa verde de lângă biserică”).',
+    'booking.dropoffAddress': 'Destinație (adresă sau cod poștal)',
     'mk.placesSource': 'Date despre localități: GeoNames (geonames.org), licență CC BY 4.0.',
     'mk.whichPlace': 'Există mai multe localități {name}. Care dintre ele?',
     'mk.noPlace': 'Nicio localitate găsită. Verifică numele.',
@@ -397,6 +399,8 @@ const dict = {
     'payment.DEPOSIT_AND_REST': 'Avans și rest la destinație',
   },
   de: {
+    'addr.none': 'Keine Adresse gefunden. Du kannst die Adresse frei eingeben.',
+    'booking.dropoffAddress': 'Ziel (Adresse oder PLZ)',
     'mk.placesSource': 'Ortsdaten: GeoNames (geonames.org), Lizenz CC BY 4.0.',
     'mk.whichPlace': 'Es gibt mehrere Orte {name}. Welcher ist gemeint?',
     'mk.noPlace': 'Kein Ort gefunden. Bitte den Namen prüfen.',

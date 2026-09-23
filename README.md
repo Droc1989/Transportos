@@ -138,6 +138,9 @@ Ce verifică testele:
   sugestii în câmpurile de căutare și la rutele firmelor; satele cu același nume se deosebesc prin județ;
   căutare și după codul poștal („80331”).
 
+- **Adrese cu sugestii** (ADR-0012): stradă și număr la preluare și destinație, prin Geoapify (plan
+  gratuit) sau Photon propriu; punctul exact se salvează la rezervare.
+
 ## Ce urmează
 
 1. **Aplicația șoferului (Expo)**, peste funcțiile din `docs/api-baza-de-date.md`. Până e gata,

@@ -1,5 +1,6 @@
 'use client';
 
+import { AddressInput } from '../../_components/address-input';
 import { useActionState, useMemo, useState } from 'react';
 import type { PaymentMethod } from '@transportos/shared';
 import { createBooking, type BookingFormState } from './actions';
@@ -12,7 +13,7 @@ export type TripOption = {
 
 type Labels = Record<
   | 'customer' | 'phone' | 'name' | 'passengers' | 'trip' | 'from' | 'to'
-  | 'pickupAddress' | 'pickupNotes' | 'payment' | 'submit' | 'saving',
+  | 'pickupAddress' | 'pickupNotes' | 'payment' | 'submit' | 'saving' | 'dropoffAddress' | 'addrNone',
   string
 >;
 
@@ -89,7 +90,13 @@ export function BookingForm({
         </div>
         <label>
           {labels.pickupAddress}
-          <input name="pickup_address" />
+          <AddressInput key={`p-${tripId}-${fromSeq}`} name="pickup_address"
+            near={points.find((p) => p.seq === fromSeq)?.name} noResults={labels.addrNone} />
+        </label>
+        <label>
+          {labels.dropoffAddress}
+          <AddressInput key={`d-${tripId}`} name="dropoff_address"
+            near={points.at(-1)?.name} noResults={labels.addrNone} />
         </label>
         <label>
           {labels.pickupNotes}

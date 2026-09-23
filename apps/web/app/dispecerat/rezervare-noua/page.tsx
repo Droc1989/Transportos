@@ -73,6 +73,8 @@ export default async function NewBookingPage({
             to: t('booking.to'),
             pickupAddress: t('booking.pickupAddress'),
             pickupNotes: t('booking.pickupNotes'),
+            dropoffAddress: t('booking.dropoffAddress'),
+            addrNone: t('addr.none'),
             payment: t('booking.payment'),
             submit: t('booking.submit'),
             saving: t('booking.saving'),

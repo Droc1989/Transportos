@@ -137,7 +137,7 @@ export default async function SearchPage({ searchParams }: {
                     {pax > 1 && <span className="meta">{money(o.price_cents * pax, o.currency)} {t('mk.total')}</span>}
                   </>
                 ) : <span className="meta">{t('mk.noPrice')}</span>}
-                <Link className="btn btn-primary btn-link" href={`/rezerva/${o.trip_id}?from=${o.from_seq}&to=${o.to_seq}&pax=${pax}`}>{t('mk.book')}</Link>
+                <Link className="btn btn-primary btn-link" href={`/rezerva/${o.trip_id}?from=${o.from_seq}&to=${o.to_seq}&pax=${pax}${pickup ? `&plat=${pickup.lat.toFixed(4)}&plng=${pickup.lng.toFixed(4)}` : ''}`}>{t('mk.book')}</Link>
               </div>
             </li>
           ))}

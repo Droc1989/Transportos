@@ -5,6 +5,7 @@ import { FEATURE_LABELS, type VehicleFeature } from '@transportos/shared';
 import { ActionForm } from '../../dispecerat/_components/action-form';
 import { getT } from '@/lib/i18n';
 import { createClient } from '@/lib/supabase/server';
+import { AddressInput } from '../../_components/address-input';
 import { bookSeat, saveClientProfile } from './actions';
 
 type Offer = {
@@ -17,13 +18,15 @@ type Offer = {
 };
 
 export default async function BookPage({ params, searchParams }: {
-  params: Promise<{ trip: string }>; searchParams: Promise<{ from?: string; to?: string; pax?: string }>;
+  params: Promise<{ trip: string }>; searchParams: Promise<{ from?: string; to?: string; pax?: string; plat?: string; plng?: string }>;
 }) {
   const { trip } = await params;
   const q = await searchParams;
   const from = Number(q.from); const to = Number(q.to);
   const pax = Math.min(Math.max(Number(q.pax) || 1, 1), 20);
-  const back = `/rezerva/${trip}?from=${from}&to=${to}&pax=${pax}`;
+  const plat = Number(q.plat), plng = Number(q.plng);
+  const hasPickup = !!q.plat && !!q.plng && Number.isFinite(plat) && Number.isFinite(plng);
+  const back = `/rezerva/${trip}?from=${from}&to=${to}&pax=${pax}${hasPickup ? `&plat=${q.plat}&plng=${q.plng}` : ''}`;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect(`/login?next=${encodeURIComponent(back)}`);
@@ -90,7 +93,10 @@ export default async function BookPage({ params, searchParams }: {
           <input type="hidden" name="label" value={`${o.company_name}, ${o.from_name} – ${o.to_name}`} />
           <fieldset>
             <legend>{profile.full_name} · {profile.phone}</legend>
-            <label>{t('bk.pickup')}<input name="pickup_address" required maxLength={300} /></label>
+            <label>{t('bk.pickup')}
+              <AddressInput name="pickup_address" required near={o.from_name}
+                nearLat={hasPickup ? plat : undefined} nearLng={hasPickup ? plng : undefined} noResults={t('addr.none')} />
+            </label>
             <label>{t('bk.notes')}<input name="pickup_notes" maxLength={500} /></label>
           </fieldset>
           <fieldset>

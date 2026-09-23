@@ -44,6 +44,11 @@ export async function createBooking(_prev: BookingFormState, form: FormData): Pr
     p_from_seq: fromSeq,
     p_to_seq: toSeq,
     p_pickup_address: field(form, 'pickup_address') || null,
+    p_pickup_lat: coord(form, 'pickup_address_lat'),
+    p_pickup_lng: coord(form, 'pickup_address_lng'),
+    p_dropoff_address: field(form, 'dropoff_address') || null,
+    p_dropoff_lat: coord(form, 'dropoff_address_lat'),
+    p_dropoff_lng: coord(form, 'dropoff_address_lng'),
     p_pickup_notes: field(form, 'pickup_notes') || null,
     p_payment_method: payment,
     p_confirm: true,
@@ -61,4 +66,11 @@ export async function createBooking(_prev: BookingFormState, form: FormData): Pr
   }
 
   redirect('/dispecerat?ok=1');
+}
+
+/** Coordonată din formular (adresa aleasă din sugestii) sau null (adresă scrisă liber). */
+function coord(form: FormData, name: string): number | null {
+  const raw = String(form.get(name) ?? '').trim();
+  const n = Number(raw);
+  return raw && Number.isFinite(n) ? n : null;
 }
