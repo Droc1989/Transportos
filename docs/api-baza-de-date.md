@@ -28,6 +28,11 @@ locuri, stări și poziții trece prin funcțiile de mai jos.
 | `get_dispatch_alerts(company, since)` | SOS deschise + preluări în pericol/ratate. |
 | `acknowledge_emergency(event)` / `resolve_emergency(event)` | Dispecerul a văzut alerta / a rezolvat-o. |
 | `create_staff_invite(company, role)` | Cod pentru dispecer/admin (proprietar: doar proprietarul sau Super Admin). |
+| `change_member_role(company, user, role)` | Schimbă rolul unui membru (OWNER/ADMIN/DISPATCHER). Nimeni nu își schimbă propriul rol; rolul OWNER îl atinge doar un OWNER; rămâne mereu cel puțin un OWNER. |
+| `remove_member(company, user)` | Scoate un membru (sau pleci singur). Șoferului i se dezleagă și contul. |
+
+Membrii nu se mai scriu direct în `company_members`. La firmă, personalul poate schimba doar
+`name`; la șofer doar `full_name`, `phone`, `active` (contul și acordul trec prin funcții).
 
 ## Super Admin
 
